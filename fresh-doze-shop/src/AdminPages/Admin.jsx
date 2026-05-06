@@ -23,10 +23,10 @@ export default function Admin() {
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("men");
-  const [editId, setEditId] = useState(null);
   const [notes, setNotes] = useState("");
+  const [editId, setEditId] = useState(null);
 
-  // --- Стейт для Фільтрів та Пошуку ---
+  // Стейт фільтрів
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterBrand, setFilterBrand] = useState("all");
@@ -55,11 +55,8 @@ export default function Admin() {
     setPerfumes(querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
   };
 
-  // --- Логіка Фільтрації ---
   const filteredPerfumes = useMemo(() => {
     let result = [...perfumes];
-
-    // 1. Пошук (по назві або бренду)
     if (searchTerm) {
       result = result.filter(
         (p) =>
@@ -67,36 +64,25 @@ export default function Admin() {
           p.brand.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
-
-    // 2. Фільтр по категорії
-    if (filterCategory !== "all") {
+    if (filterCategory !== "all")
       result = result.filter((p) => p.category === filterCategory);
-    }
-
-    // 3. Фільтр по конкретному бренду
-    if (filterBrand !== "all") {
+    if (filterBrand !== "all")
       result = result.filter((p) => p.brand === filterBrand);
-    }
-
-    // 4. Сортування за ціною
-    if (sortByPrice === "low") {
+    if (sortByPrice === "low")
       result.sort((a, b) => a.pricePerMl - b.pricePerMl);
-    } else if (sortByPrice === "high") {
+    else if (sortByPrice === "high")
       result.sort((a, b) => b.pricePerMl - a.pricePerMl);
-    }
-
     return result;
   }, [perfumes, searchTerm, filterCategory, filterBrand, sortByPrice]);
 
-  // Отримуємо список унікальних брендів для фільтра
-  const uniqueBrands = useMemo(() => {
-    return ["all", ...new Set(perfumes.map((p) => p.brand))];
-  }, [perfumes]);
+  const uniqueBrands = useMemo(
+    () => ["all", ...new Set(perfumes.map((p) => p.brand))],
+    [perfumes],
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !brand || !price) return alert("Заповни всі поля");
-
     const perfumeData = {
       name,
       brand,
@@ -105,16 +91,16 @@ export default function Admin() {
       category,
       notes,
       pricePerMl: Number(price),
-      isAvailable: true,
     };
-
     if (editId) {
       await updateDoc(doc(db, "perfumes", editId), perfumeData);
       setEditId(null);
     } else {
-      await addDoc(collection(db, "perfumes"), perfumeData);
+      await addDoc(collection(db, "perfumes"), {
+        ...perfumeData,
+        isAvailable: true,
+      });
     }
-
     resetForm();
     fetchPerfumes();
   };
@@ -126,8 +112,8 @@ export default function Admin() {
     setDescription("");
     setImageUrl("");
     setCategory("men");
-    setEditId(null);
     setNotes("");
+    setEditId(null);
   };
 
   const startEdit = (p) => {
@@ -157,117 +143,116 @@ export default function Admin() {
   if (!user) return null;
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-          FRESH DOZE <span className="text-blue-600">ADMIN</span>
-        </h1>
-        <button
-          onClick={() => signOut(auth)}
-          className="bg-white border border-red-200 text-red-500 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-50 transition"
-        >
-          Вийти
-        </button>
-      </div>
-
-      {/* ФОРМА ДОДАВАННЯ/РЕДАГУВАННЯ */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200 mb-10"
-      >
-        <h2 className="text-xl font-bold mb-4 text-gray-800">
-          {editId ? " Редагування" : " Новий аромат"}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            placeholder="Бренд (напр. Tom Ford)"
-            className="p-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Назва (напр. Lost Cherry)"
-            className="p-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="p-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} парфумерія
-              </option>
-            ))}
-          </select>
-        </div>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Опис аромату..."
-          className="w-full mt-4 p-3 bg-gray-50 border rounded-2xl h-24 outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Нотатки (напр. Схожий на Baccarat Rouge або Хіт продажу 🔥)"
-          className="w-full mt-4 p-3 bg-blue-50 border border-blue-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-blue-300"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <input
-            value={price}
-            type="number"
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Ціна за мл"
-            className="p-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="URL картинки"
-            className="p-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex gap-2 mt-6">
+    <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+      {/* BANNER (*/}
+      <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
+        <div className="bg-[#00a693] py-8 px-6 text-center">
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
+            FreshDoze
+          </h1>
+          <p className="text-white/80 text-xs font-bold mt-2 tracking-[0.2em] uppercase">
+            ADMIN PANEL
+          </p>
           <button
-            className={`flex-1 p-4 rounded-2xl font-bold text-white transition shadow-lg ${editId ? "bg-orange-500" : "bg-black"}`}
+            onClick={() => signOut(auth)}
+            className="absolute top-4 right-4 bg-white/20 text-white border border-white/30 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-white hover:text-[#00a693] transition-all"
           >
-            {editId ? "Оновити товар" : "Додати в базу"}
+            Вийти
           </button>
-          {editId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="px-6 bg-gray-200 rounded-2xl font-bold"
-            >
-              Скасувати
-            </button>
-          )}
         </div>
-      </form>
+      </header>
 
-      {/* --- БЛОК ФІЛЬТРІВ ТА ПОШУКУ --- */}
-      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Пошук */}
-          <div className="flex-1 relative">
-            {/* <span className="absolute left-3 top-3.5 text-gray-400">🔍</span> */}
+      <div className="max-w-5xl mx-auto px-4 mt-8">
+        {/* ФОРМА */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 mb-10"
+        >
+          <h2 className="text-xl font-black mb-6 text-gray-800">
+            {editId ? " Редагувати аромат" : " Додати новий аромат"}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
-              type="text"
-              placeholder="Пошук за назвою або брендом..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              placeholder="Бренд"
+              className="p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
+            />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Назва"
+              className="p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
+            />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="p-4 bg-gray-100 rounded-2xl outline-none font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693]"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} парфумерія
+                </option>
+              ))}
+            </select>
+          </div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Опис..."
+            className="w-full mt-4 p-4 bg-gray-100 rounded-2xl h-24 outline-none focus:ring-2 focus:ring-[#00a693]"
+          />
+          <input
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Нотатки (напр. Схожий на Baccarat Rouge чи Хіт продажу!)"
+            className="w-full mt-4 p-4 bg-gray-100  rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <input
+              value={price}
+              type="number"
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Ціна за мл"
+              className="p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
+            />
+            <input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="URL картинки"
+              className="p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
             />
           </div>
+          <div className="flex gap-3 mt-6">
+            <button
+              className={`flex-1 p-5 rounded-[2rem] font-black text-white transition shadow-lg ${editId ? "bg-orange-500" : "bg-[#00a693] hover:bg-[#008d7d]"}`}
+            >
+              {editId ? "ОНОВИТИ ДАНІ" : "ЗБЕРЕГТИ В БАЗУ"}
+            </button>
+            {editId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="px-8 bg-gray-200 rounded-[2rem] font-black"
+              >
+                СКАСУВАТИ
+              </button>
+            )}
+          </div>
+        </form>
 
-          {/* Фільтр категорій */}
+        {/* ФІЛЬТРИ */}
+        <div className="bg-gray-100 p-6 rounded-[2rem] mb-8 grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            placeholder="Пошук..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-3 bg-white rounded-xl outline-none text-sm"
+          />
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="p-3 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium"
+            className="p-3 bg-white rounded-xl outline-none text-sm font-bold"
           >
             <option value="all">Усі категорії</option>
             {CATEGORIES.map((c) => (
@@ -276,12 +261,10 @@ export default function Admin() {
               </option>
             ))}
           </select>
-
-          {/* Фільтр брендів */}
           <select
             value={filterBrand}
             onChange={(e) => setFilterBrand(e.target.value)}
-            className="p-3 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium "
+            className="p-3 bg-white rounded-xl outline-none text-sm font-bold"
           >
             <option value="all">Усі бренди</option>
             {uniqueBrands
@@ -292,97 +275,70 @@ export default function Admin() {
                 </option>
               ))}
           </select>
-
-          {/* Сортування по ціні */}
           <select
             value={sortByPrice}
             onChange={(e) => setSortByPrice(e.target.value)}
-            className="p-3 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium"
+            className="p-3 bg-white rounded-xl outline-none text-sm font-bold"
           >
             <option value="none">Сортування</option>
-            <option value="low">Дешевші спочатку</option>
-            <option value="high">Дорожчі спочатку</option>
+            <option value="low">Дешевші</option>
+            <option value="high">Дорожчі</option>
           </select>
         </div>
-      </div>
 
-      {/* СПИСОК */}
-      <div className="flex justify-between items-center mb-4 px-2">
-        <h2 className="text-xl font-bold text-gray-800">
-          Результати ({filteredPerfumes.length})
-        </h2>
-        {(searchTerm || filterCategory !== "all" || filterBrand !== "all") && (
-          <button
-            onClick={() => {
-              setSearchTerm("");
-              setFilterCategory("all");
-              setFilterBrand("all");
-              setSortByPrice("none");
-            }}
-            className="text-xs text-blue-600 font-bold hover:underline"
-          >
-            Скинути всі фільтри
-          </button>
-        )}
-      </div>
-
-      <div className="grid gap-4">
-        {filteredPerfumes.map((p) => (
-          <div
-            key={p.id}
-            className={`flex flex-col md:flex-row justify-between items-center p-4 bg-white border rounded-3xl shadow-sm transition hover:shadow-md ${!p.isAvailable && "opacity-50"}`}
-          >
-            <div className="flex items-center gap-4 w-full">
+        {/* СПИСОК (Карточки одна під одну) */}
+        <div className="flex flex-col gap-4">
+          {filteredPerfumes.map((p) => (
+            <div
+              key={p.id}
+              className={`flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-gray-100 rounded-3xl transition-all hover:shadow-md ${!p.isAvailable && "opacity-50"}`}
+            >
               <img
                 src={p.imageUrl || "https://via.placeholder.com/150"}
                 className="w-20 h-20 object-cover rounded-2xl bg-gray-100"
+                alt=""
               />
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-50 px-2 py-1 rounded-md">
-                  {CATEGORIES.find((c) => c.id === p.category)?.name || "Інше"}
-                </span>
-                <h3 className="text-lg font-bold text-gray-900 mt-1">
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-1">
+                  <span className="text-[9px] font-black uppercase text-[#00a693] bg-[#00a693]/10 px-2 py-0.5 rounded">
+                    {CATEGORIES.find((c) => c.id === p.category)?.name}
+                  </span>
+                  {p.notes && (
+                    <span className="text-[9px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-0.5 rounded">
+                      {p.notes}
+                    </span>
+                  )}
+                </div>
+                <h3 className="font-bold text-gray-900">
                   {p.brand} {p.name}
                 </h3>
-                {p.notes && (
-                  <p className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-lg inline-block mt-1">
-                    {p.notes}
-                  </p>
-                )}
-                <p className="text-gray-500 font-semibold">
+                <p className="text-[#00a693] font-black text-sm">
                   {p.pricePerMl} грн/мл
                 </p>
               </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => startEdit(p)}
+                  className="p-3 bg-gray-50 text-orange-500 rounded-2xl hover:bg-orange-50"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => toggleAvailability(p.id, p.isAvailable)}
+                  className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition ${p.isAvailable ? "bg-[#00a693]/10 text-[#00a693]" : "bg-gray-100 text-gray-400"}`}
+                >
+                  {p.isAvailable ? "В наявності" : "Немає"}
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  className="p-3 bg-gray-50 text-red-400 rounded-2xl hover:bg-red-50"
+                >
+                  🗑️
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
-              <button
-                onClick={() => startEdit(p)}
-                className="p-3 bg-gray-50 text-orange-500 rounded-2xl hover:bg-orange-50"
-              >
-                ✏️
-              </button>
-              <button
-                onClick={() => toggleAvailability(p.id, p.isAvailable)}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold transition ${p.isAvailable ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"}`}
-              >
-                {p.isAvailable ? "В наявності" : "Немає"}
-              </button>
-              <button
-                onClick={() => handleDelete(p.id)}
-                className="p-3 bg-gray-50 text-red-400 rounded-2xl hover:bg-red-50"
-              >
-                🗑️
-              </button>
-            </div>
-          </div>
-        ))}
-        {filteredPerfumes.length === 0 && (
-          <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 font-medium">
-              Нічого не знайдено за вашим запитом..
-            </p>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );
