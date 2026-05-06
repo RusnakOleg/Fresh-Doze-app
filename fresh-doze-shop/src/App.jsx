@@ -111,7 +111,7 @@ function App() {
             </select>
 
             <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] text-sm transition-all "
+              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693]  transition-all "
               value={filterBrand}
               onChange={(e) => setFilterBrand(e.target.value)}
             >
@@ -126,7 +126,7 @@ function App() {
             </select>
 
             <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] text-sm transition-all"
+              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693]  transition-all"
               value={sortByPrice}
               onChange={(e) => setSortByPrice(e.target.value)}
             >

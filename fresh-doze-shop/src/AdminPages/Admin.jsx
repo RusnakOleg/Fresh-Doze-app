@@ -247,12 +247,12 @@ export default function Admin() {
             placeholder="Пошук..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-3 bg-white rounded-xl outline-none text-sm"
+            className="p-3 bg-white rounded-xl outline-none text-sm focus:ring-2 focus:ring-[#00a693]"
           />
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="p-3 bg-white rounded-xl outline-none text-sm font-bold"
+            className="p-3 bg-white rounded-xl outline-none text-sm font-bold focus:ring-2 focus:ring-[#00a693]"
           >
             <option value="all">Усі категорії</option>
             {CATEGORIES.map((c) => (
@@ -264,7 +264,7 @@ export default function Admin() {
           <select
             value={filterBrand}
             onChange={(e) => setFilterBrand(e.target.value)}
-            className="p-3 bg-white rounded-xl outline-none text-sm font-bold"
+            className="p-3 bg-white rounded-xl outline-none text-sm font-bold focus:ring-2 focus:ring-[#00a693]"
           >
             <option value="all">Усі бренди</option>
             {uniqueBrands
@@ -278,7 +278,7 @@ export default function Admin() {
           <select
             value={sortByPrice}
             onChange={(e) => setSortByPrice(e.target.value)}
-            className="p-3 bg-white rounded-xl outline-none text-sm font-bold"
+            className="p-3 bg-white rounded-xl outline-none text-sm font-bold focus:ring-2 focus:ring-[#00a693]"
           >
             <option value="none">Сортування</option>
             <option value="low">Дешевші</option>
@@ -291,7 +291,7 @@ export default function Admin() {
           {filteredPerfumes.map((p) => (
             <div
               key={p.id}
-              className={`flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-gray-100 rounded-3xl transition-all hover:shadow-md ${!p.isAvailable && "opacity-50"}`}
+              className={`flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-[#00a693] rounded-3xl transition-all hover:shadow-md ${!p.isAvailable && "opacity-50"}`}
             >
               <img
                 src={p.imageUrl || "https://via.placeholder.com/150"}
