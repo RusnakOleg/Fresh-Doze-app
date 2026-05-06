@@ -24,6 +24,7 @@ export default function Admin() {
   const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("men");
   const [editId, setEditId] = useState(null);
+  const [notes, setNotes] = useState("");
 
   // --- Стейт для Фільтрів та Пошуку ---
   const [searchTerm, setSearchTerm] = useState("");
@@ -102,6 +103,7 @@ export default function Admin() {
       description,
       imageUrl,
       category,
+      notes,
       pricePerMl: Number(price),
       isAvailable: true,
     };
@@ -125,6 +127,7 @@ export default function Admin() {
     setImageUrl("");
     setCategory("men");
     setEditId(null);
+    setNotes("");
   };
 
   const startEdit = (p) => {
@@ -135,6 +138,7 @@ export default function Admin() {
     setDescription(p.description || "");
     setImageUrl(p.imageUrl || "");
     setCategory(p.category || "men");
+    setNotes(p.notes || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -204,6 +208,12 @@ export default function Admin() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Опис аромату..."
           className="w-full mt-4 p-3 bg-gray-50 border rounded-2xl h-24 outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Нотатки (напр. Схожий на Baccarat Rouge або Хіт продажу 🔥)"
+          className="w-full mt-4 p-3 bg-blue-50 border border-blue-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-blue-300"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <input
@@ -334,6 +344,11 @@ export default function Admin() {
                 <h3 className="text-lg font-bold text-gray-900 mt-1">
                   {p.brand} {p.name}
                 </h3>
+                {p.notes && (
+                  <p className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-lg inline-block mt-1">
+                    {p.notes}
+                  </p>
+                )}
                 <p className="text-gray-500 font-semibold">
                   {p.pricePerMl} грн/мл
                 </p>
