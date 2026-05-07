@@ -73,7 +73,6 @@ export default function Admin() {
         totalPrice: perfume.pricePerMl * defaultMl + defaultBottlePrice,
       },
     ]);
-    setIsOrderModalOpen(false);
   };
 
   const updateOrderItemMl = (id, ml) => {
@@ -81,7 +80,11 @@ export default function Admin() {
       orderItems.map((item) => {
         if (item.id === id) {
           const newMl = Number(ml);
-          return { ...item, ml: newMl, totalPrice: item.pricePerMl * newMl };
+          return {
+            ...item,
+            ml: newMl,
+            totalPrice: item.pricePerMl * newMl + (item.bottlePrice || 0),
+          };
         }
         return item;
       }),
@@ -204,19 +207,47 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans">
-      {/* ПРИХОВУЄМО ВСЕ ПРИ ДРУЦІ, КРІМ ЧЕКА */}
       <style>{`
+        #only-for-print { display: none; }
+
         @media print {
-        @page {
-          margin: 0; /* Прибирає стандартні хедери та футери браузера */
-              }
-          body * { visibility: hidden; }
-          #print-area, #print-area * { visibility: visible; }
-          #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+          @page { margin: 15mm; }
+          
+          body * { visibility: hidden; height: 0; }
+          
+          #only-for-print, #only-for-print * { 
+            visibility: visible !important;
+            display: block !important;
+            height: auto !important;
+          }
+
+          #only-for-print {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            display: block !important;
+          }
+
+          .print-item {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between;
+            border-bottom: 1px dashed #ccc;
+            padding: 10px 0;
+            break-inside: avoid;
+          }
+
+          .print-flex {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: flex-end;
+          }
         }
       `}</style>
-      {/* BANNER (*/}
-      <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
+
+      {/* BANNER */}
+      <header className="bg-white border-b sticky top-0 z-20 shadow-sm print:hidden">
         <div className="bg-[#00a693] py-8 px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
             FreshDoze
@@ -234,7 +265,6 @@ export default function Admin() {
       </header>
 
       <div className="max-w-5xl mx-auto px-4 mt-8 print:hidden">
-        {/* Кнопка відкриття кошика (якщо там щось є) */}
         {orderItems.length > 0 && (
           <button
             onClick={() => setIsOrderModalOpen(true)}
@@ -243,7 +273,8 @@ export default function Admin() {
             📦 Оформити замовлення ({orderItems.length})
           </button>
         )}
-        {/* ФОРМА */}
+
+        {/* ФОРМА ДОДАВАННЯ */}
         <form
           onSubmit={handleSubmit}
           className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 mb-10"
@@ -286,7 +317,7 @@ export default function Admin() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Нотатки (напр. Схожий на Baccarat Rouge чи Хіт продажу!)"
-            className="w-full mt-4 p-4 bg-gray-100  rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
+            className="w-full mt-4 p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <input
@@ -305,7 +336,9 @@ export default function Admin() {
           </div>
           <div className="flex gap-3 mt-6">
             <button
-              className={`flex-1 p-5 rounded-[2rem] font-black text-white transition shadow-lg ${editId ? "bg-orange-500" : "bg-[#00a693] hover:bg-[#008d7d]"}`}
+              className={`flex-1 p-5 rounded-[2rem] font-black text-white transition shadow-lg ${
+                editId ? "bg-orange-500" : "bg-[#00a693] hover:bg-[#008d7d]"
+              }`}
             >
               {editId ? "ОНОВИТИ ДАНІ" : "ЗБЕРЕГТИ В БАЗУ"}
             </button>
@@ -366,12 +399,14 @@ export default function Admin() {
           </select>
         </div>
 
-        {/* СПИСОК (Карточки одна під одну) */}
+        {/* СПИСОК КАРТОЧОК */}
         <div className="flex flex-col gap-4">
           {filteredPerfumes.map((p) => (
             <div
               key={p.id}
-              className={`flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-[#00a693] rounded-3xl transition-all hover:shadow-md ${!p.isAvailable && "opacity-50"}`}
+              className={`flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-[#00a693] rounded-3xl transition-all hover:shadow-md ${
+                !p.isAvailable && "opacity-50"
+              }`}
             >
               <img
                 src={p.imageUrl || "https://via.placeholder.com/150"}
@@ -417,7 +452,11 @@ export default function Admin() {
                 </button>
                 <button
                   onClick={() => toggleAvailability(p.id, p.isAvailable)}
-                  className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition ${p.isAvailable ? "bg-[#00a693]/10 text-[#00a693]" : "bg-gray-100 text-gray-400"}`}
+                  className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition ${
+                    p.isAvailable
+                      ? "bg-[#00a693]/10 text-[#00a693]"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
                 >
                   {p.isAvailable ? "В наявності" : "Немає"}
                 </button>
@@ -432,9 +471,10 @@ export default function Admin() {
           ))}
         </div>
       </div>
-      {/* POPUP ЗАМОВЛЕННЯ */}
+
+      {/* МОДАЛКА ОФОРМЛЕННЯ */}
       {isOrderModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm print:hidden">
           <div className="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div className="p-6 bg-gray-50 border-b flex justify-between items-center">
               <h2 className="text-2xl font-black">Створення замовлення</h2>
@@ -446,15 +486,7 @@ export default function Admin() {
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1" id="print-area">
-              <div className="hidden print:block text-center mb-8">
-                <h1 className="text-3xl font-black text-[#00a693]">
-                  FreshDoze
-                </h1>
-                <p className="text-gray-500 uppercase tracking-widest text-xs">
-                  Ваше замовлення
-                </p>
-              </div>
+            <div className="p-6 overflow-y-auto flex-1">
               <div className="space-y-6">
                 {orderItems.map((item) => (
                   <div
@@ -466,7 +498,7 @@ export default function Admin() {
                         {item.brand}
                       </h4>
                       <p className="text-gray-600">{item.name}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-4 print:hidden">
+                      <div className="mt-2 flex flex-wrap items-center gap-4">
                         <div className="flex flex-col gap-1">
                           <label className="text-[10px] font-bold text-gray-400 uppercase">
                             Об'єм (мл):
@@ -505,7 +537,7 @@ export default function Admin() {
                       </p>
                       <button
                         onClick={() => removeFromOrder(item.id)}
-                        className="text-red-400 text-xs mt-2 print:hidden underline"
+                        className="text-red-400 text-xs mt-2 underline"
                       >
                         Видалити
                       </button>
@@ -525,7 +557,7 @@ export default function Admin() {
                 </div>
                 <div className="h-[1px] bg-white/20 mb-4"></div>
                 <div className="flex justify-between items-end">
-                  <span className="text-xl font-bold uppercase tracking-tighter ">
+                  <span className="text-xl font-bold uppercase tracking-tighter">
                     Підсумок:
                   </span>
                   <span className="text-4xl font-black text-[#00a693]">
@@ -552,6 +584,62 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      {/* БЛОК ТІЛЬКИ ДЛЯ ДРУКУ (PDF) */}
+      <div id="only-for-print" className="p-4">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-black text-[#00a693] italic">
+            FreshDoze
+          </h1>
+          <p className="text-gray-500 uppercase tracking-[0.3em] text-[10px] font-bold">
+            Ваше замовлення
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {orderItems.map((item) => (
+            <div key={item.id} className="print-item">
+              <div className="flex-1">
+                <h4 className="font-bold text-xl uppercase tracking-tight">
+                  {item.brand}
+                </h4>
+                <p className="text-gray-600 text-sm">{item.name}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-black text-xl">{item.totalPrice} ₴</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase">
+                  {item.ml} мл × {item.pricePerMl}₴ + фл: {item.bottlePrice}₴
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 pt-8 border-t-2 border-black">
+          <div className="print-flex">
+            <div>
+              <p className="text-[10px] font-black uppercase text-gray-400 mb-1">
+                Інформація:
+              </p>
+              <p className="text-sm font-bold">
+                Флаконів: {orderItems.length} шт.
+              </p>
+              <p className="text-sm font-bold">Об'єм: {totalMl} мл</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xl font-black uppercase tracking-tighter">
+                Підсумок:
+              </p>
+              <p className="text-5xl font-black text-[#00a693]">{totalSum} ₴</p>
+            </div>
+          </div>
+          <div className="mt-20 text-center">
+            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.5em]">
+              Дякуємо за замовлення!
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
