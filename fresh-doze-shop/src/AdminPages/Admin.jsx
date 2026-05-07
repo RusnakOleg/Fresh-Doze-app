@@ -208,43 +208,102 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans">
       <style>{`
-        #only-for-print { display: none; }
+  #only-for-print {
+    display: none;
+  }
 
-        @media print {
-          @page { margin: 15mm; }
-          
-          body * { visibility: hidden; height: 0; }
-          
-          #only-for-print, #only-for-print * { 
-            visibility: visible !important;
-            display: block !important;
-            height: auto !important;
-          }
+  @media print {
+    @page {
+      margin: 15mm;
+    }
 
-          #only-for-print {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            display: block !important;
-          }
+    body * {
+      visibility: hidden;
+      height: 0;
+    }
 
-          .print-item {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-between;
-            border-bottom: 1px dashed #ccc;
-            padding: 10px 0;
-            break-inside: avoid;
-          }
+    #only-for-print,
+    #only-for-print * {
+      visibility: visible !important;
+      height: auto !important;
+    }
 
-          .print-flex {
-            display: flex !important;
-            justify-content: space-between;
-            align-items: flex-end;
-          }
-        }
-      `}</style>
+    #only-for-print {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      display: block !important;
+      padding: 0;
+    }
+
+    /* ---------- ITEMS ---------- */
+
+    .print-item {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      border-bottom: 1px dashed #d1d5db;
+      padding: 14px 0;
+      break-inside: avoid;
+    }
+
+    .print-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .print-right {
+      width: 130px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .print-brand {
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1;
+      margin: 0 0 4px 0;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: #111;
+    }
+
+    .print-name {
+      font-size: 15px;
+      line-height: 1.3;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .print-price {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      margin: 0;
+      color: #111;
+    }
+
+    .print-meta {
+      margin-top: 6px;
+      font-size: 10px;
+      line-height: 1.4;
+      color: #9ca3af;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* ---------- TOTAL ---------- */
+
+    .print-flex {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+    }
+  }
+`}</style>
 
       {/* BANNER */}
       <header className="bg-white border-b sticky top-0 z-20 shadow-sm print:hidden">
@@ -599,16 +658,17 @@ export default function Admin() {
         <div className="space-y-4">
           {orderItems.map((item) => (
             <div key={item.id} className="print-item">
-              <div className="flex-1">
-                <h4 className="font-bold text-xl uppercase tracking-tight">
-                  {item.brand}
-                </h4>
-                <p className="text-gray-600 text-sm">{item.name}</p>
+              <div className="print-left">
+                <h4 className="print-brand">{item.brand}</h4>
+                <p className="print-name">{item.name}</p>
               </div>
-              <div className="text-right">
-                <p className="font-black text-xl">{item.totalPrice} ₴</p>
-                <p className="text-[10px] text-gray-400 font-bold uppercase">
-                  {item.ml} мл × {item.pricePerMl}₴ + фл: {item.bottlePrice}₴
+
+              <div className="print-right">
+                <p className="print-price">{item.totalPrice} ₴</p>
+
+                <p className="print-meta">
+                  {item.ml} мл × {item.pricePerMl}₴
+                  <br />+ флакон: {item.bottlePrice}₴
                 </p>
               </div>
             </div>
