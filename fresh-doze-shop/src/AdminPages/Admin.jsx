@@ -32,6 +32,10 @@ export default function Admin() {
   const [filterBrand, setFilterBrand] = useState("all");
   const [sortByPrice, setSortByPrice] = useState("none");
 
+  // Стейт для оформлення замовлення
+  const [orderItems, setOrderItems] = useState([]);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
   const CATEGORIES = [
     { id: "men", name: "Чоловіча" },
     { id: "women", name: "Жіноча" },
@@ -53,6 +57,62 @@ export default function Admin() {
   const fetchPerfumes = async () => {
     const querySnapshot = await getDocs(collection(db, "perfumes"));
     setPerfumes(querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+  };
+
+  // --- ЛОГІКА ЗАМОВЛЕННЯ ---
+  const addToOrder = (perfume) => {
+    if (orderItems.find((item) => item.id === perfume.id)) return;
+    const defaultMl = 3;
+    const defaultBottlePrice = 25;
+    setOrderItems([
+      ...orderItems,
+      {
+        ...perfume,
+        ml: defaultMl,
+        bottlePrice: defaultBottlePrice,
+        totalPrice: perfume.pricePerMl * defaultMl + defaultBottlePrice,
+      },
+    ]);
+    setIsOrderModalOpen(false);
+  };
+
+  const updateOrderItemMl = (id, ml) => {
+    setOrderItems(
+      orderItems.map((item) => {
+        if (item.id === id) {
+          const newMl = Number(ml);
+          return { ...item, ml: newMl, totalPrice: item.pricePerMl * newMl };
+        }
+        return item;
+      }),
+    );
+  };
+
+  const updateOrderItemBottle = (id, bottlePrice) => {
+    setOrderItems(
+      orderItems.map((item) => {
+        if (item.id === id) {
+          const newBottlePrice = Number(bottlePrice);
+          return {
+            ...item,
+            bottlePrice: newBottlePrice,
+            totalPrice: item.pricePerMl * item.ml + newBottlePrice,
+          };
+        }
+        return item;
+      }),
+    );
+  };
+
+  const removeFromOrder = (id) => {
+    setOrderItems(orderItems.filter((item) => item.id !== id));
+  };
+
+  const totalSum = orderItems.reduce((acc, item) => acc + item.totalPrice, 0);
+  const totalMl = orderItems.reduce((acc, item) => acc + item.ml, 0);
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const filteredPerfumes = useMemo(() => {
@@ -144,6 +204,17 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+      {/* ПРИХОВУЄМО ВСЕ ПРИ ДРУЦІ, КРІМ ЧЕКА */}
+      <style>{`
+        @media print {
+        @page {
+          margin: 0; /* Прибирає стандартні хедери та футери браузера */
+              }
+          body * { visibility: hidden; }
+          #print-area, #print-area * { visibility: visible; }
+          #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+      `}</style>
       {/* BANNER (*/}
       <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
         <div className="bg-[#00a693] py-8 px-6 text-center">
@@ -162,7 +233,16 @@ export default function Admin() {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 mt-8">
+      <div className="max-w-5xl mx-auto px-4 mt-8 print:hidden">
+        {/* Кнопка відкриття кошика (якщо там щось є) */}
+        {orderItems.length > 0 && (
+          <button
+            onClick={() => setIsOrderModalOpen(true)}
+            className="fixed bottom-6 right-6 z-30 bg-black text-white px-8 py-4 rounded-full shadow-2xl font-bold flex items-center gap-3 animate-bounce"
+          >
+            📦 Оформити замовлення ({orderItems.length})
+          </button>
+        )}
         {/* ФОРМА */}
         <form
           onSubmit={handleSubmit}
@@ -318,6 +398,18 @@ export default function Admin() {
               </div>
               <div className="flex gap-2">
                 <button
+                  onClick={() => addToOrder(p)}
+                  className={`px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+                    orderItems.find((item) => item.id === p.id)
+                      ? "bg-[#00a693] text-white"
+                      : "bg-black text-white hover:bg-[#00a693]"
+                  }`}
+                >
+                  {orderItems.find((item) => item.id === p.id)
+                    ? "✓ ДОДАНО"
+                    : "+ В ЧЕК"}
+                </button>
+                <button
                   onClick={() => startEdit(p)}
                   className="p-3 bg-gray-50 text-orange-500 rounded-2xl hover:bg-orange-50"
                 >
@@ -340,6 +432,126 @@ export default function Admin() {
           ))}
         </div>
       </div>
+      {/* POPUP ЗАМОВЛЕННЯ */}
+      {isOrderModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-6 bg-gray-50 border-b flex justify-between items-center">
+              <h2 className="text-2xl font-black">Створення замовлення</h2>
+              <button
+                onClick={() => setIsOrderModalOpen(false)}
+                className="text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1" id="print-area">
+              <div className="hidden print:block text-center mb-8">
+                <h1 className="text-3xl font-black text-[#00a693]">
+                  FreshDoze
+                </h1>
+                <p className="text-gray-500 uppercase tracking-widest text-xs">
+                  Ваше замовлення
+                </p>
+              </div>
+              <div className="space-y-6">
+                {orderItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-start border-b border-dashed pb-4"
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg leading-tight">
+                        {item.brand}
+                      </h4>
+                      <p className="text-gray-600">{item.name}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-4 print:hidden">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">
+                            Об'єм (мл):
+                          </label>
+                          <input
+                            type="number"
+                            value={item.ml}
+                            onChange={(e) =>
+                              updateOrderItemMl(item.id, e.target.value)
+                            }
+                            className="w-16 p-2 bg-gray-100 rounded-lg font-bold outline-none focus:ring-2 focus:ring-[#00a693]"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">
+                            Флакон (грн):
+                          </label>
+                          <input
+                            type="number"
+                            value={item.bottlePrice || 0}
+                            onChange={(e) =>
+                              updateOrderItemBottle(item.id, e.target.value)
+                            }
+                            className="w-20 p-2 bg-gray-100 rounded-lg font-bold outline-none focus:ring-2 focus:ring-[#00a693]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right min-w-[100px]">
+                      <p className="font-black text-lg">{item.totalPrice} ₴</p>
+                      <p className="text-xs text-gray-400">
+                        {item.ml} мл × {item.pricePerMl}₴<br /> + флакон:{" "}
+                        {item.bottlePrice || 0}₴
+                      </p>
+                      <button
+                        onClick={() => removeFromOrder(item.id)}
+                        className="text-red-400 text-xs mt-2 print:hidden underline"
+                      >
+                        Видалити
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-10 bg-gray-900 text-white p-8 rounded-[2rem]">
+                <div className="flex justify-between mb-2 opacity-70 text-sm">
+                  <span>Кількість флаконів:</span>
+                  <span>{orderItems.length} шт.</span>
+                </div>
+                <div className="flex justify-between mb-4 opacity-70 text-sm">
+                  <span>Загальний об'єм:</span>
+                  <span>{totalMl} мл</span>
+                </div>
+                <div className="h-[1px] bg-white/20 mb-4"></div>
+                <div className="flex justify-between items-end">
+                  <span className="text-xl font-bold uppercase tracking-tighter ">
+                    Підсумок:
+                  </span>
+                  <span className="text-4xl font-black text-[#00a693]">
+                    {totalSum} ₴
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50 border-t flex gap-4">
+              <button
+                onClick={handlePrint}
+                className="flex-1 bg-[#00a693] text-white p-4 rounded-2xl font-black shadow-lg hover:shadow-xl transition-all"
+              >
+                ЗБЕРЕГТИ PDF / ДРУК
+              </button>
+              <button
+                onClick={() => setOrderItems([])}
+                className="px-6 bg-gray-200 text-gray-600 rounded-2xl font-bold"
+              >
+                ОЧИСТИТИ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
