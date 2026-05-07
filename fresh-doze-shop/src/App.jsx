@@ -10,7 +10,7 @@ const CATEGORIES = [
   { id: "arabic", name: "Арабські" },
 ];
 
-const VOLUMES = [2, 3, 5, 10, 15];
+const VOLUMES = [3, 5, 10, 15];
 
 function App() {
   const [perfumes, setPerfumes] = useState([]);
@@ -146,20 +146,21 @@ function App() {
               key={p.id}
               onClick={() => setSelectedPerfume(p)}
               /* Змінено: bg-gray-100 та rounded-2xl як у пошуку */
-              className="bg-gray-100 rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative border-2 border-[#00a693]"
+              className=" rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative border-2 border-[#00a693]"
             >
               {/* Фото */}
-              <div className="aspect-square overflow-hidden">
+              <div className="aspect-square overflow-hidden flex items-center justify-center p-2">
                 <img
                   src={p.imageUrl}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="max-w-full max-h-full object-contain mix-blend-darken transition-transform duration-500 group-hover:scale-105"
                   alt={p.name}
+                  loading="lazy"
                 />
               </div>
 
               {/* Текст */}
-              <div className="p-4">
-                <p className="text-[9px] font-black text-[#00a693] uppercase tracking-[0.15em] mb-1">
+              <div className="p-4 bg-gray-100">
+                <p className="text-[10px] font-black text-[#00a693] uppercase tracking-[0.15em] mb-1">
                   {p.brand}
                 </p>
                 <h3 className="font-bold text-gray-900 truncate text-sm md:text-base leading-tight">
