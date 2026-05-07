@@ -15,6 +15,8 @@ const VOLUMES = [3, 5, 10, 15];
 function App() {
   const [perfumes, setPerfumes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Фільтрація
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +25,7 @@ function App() {
   const [sortByPrice, setSortByPrice] = useState("none");
 
   const [selectedPerfume, setSelectedPerfume] = useState(null);
+  const [customVolume, setCustomVolume] = useState("");
 
   useEffect(() => {
     const fetchPerfumes = async () => {
@@ -73,6 +76,37 @@ function App() {
     return result;
   }, [perfumes, searchTerm, filterCategory, filterBrand, sortByPrice]);
 
+  // Логіка кошика
+  const addToCart = (perfume, volume) => {
+    if (!volume || volume <= 0) return;
+    const newItem = {
+      cartId: Date.now(),
+      id: perfume.id,
+      brand: perfume.brand,
+      name: perfume.name,
+      volume: Number(volume),
+      price: volume * perfume.pricePerMl,
+    };
+    setCart([...cart, newItem]);
+    setSelectedPerfume(null);
+    setCustomVolume("");
+  };
+
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter((item) => item.cartId !== cartId));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+
+  const generateTelegramMessage = () => {
+    let message = "Вітаю! Хочу зробити замовлення:\n\n";
+    cart.forEach((item, index) => {
+      message += `${index + 1}. ${item.brand} ${item.name} — ${item.volume}мл (${item.price} ₴)\n`;
+    });
+    message += `\nРазом: ${cartTotal} ₴`;
+    return encodeURIComponent(message);
+  };
+
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center font-bold text-[#00a693]">
@@ -85,13 +119,23 @@ function App() {
       {/* HEADER WITH BANNER COLORS */}
       <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
         {/* Banner Section */}
-        <div className="bg-[#00a693] py-8 px-6 text-center">
+        <div className="bg-[#00a693] py-8 px-6 text-center relative flex flex-col items-center justify-center min-h-[140px]">
+          {/* Назва бренду */}
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
             FreshDoze
           </h1>
+          {/* Підзаголовок */}
           <p className="text-white/80 text-xs font-bold mt-2 tracking-[0.2em] uppercase">
             Premium Perfume Decants
           </p>
+          {/* Кнопка кошика - тепер вона завжди по центру праворуч відносно висоти банера */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white text-[#00a693] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-xl flex items-center justify-center gap-1 hover:scale-110 active:scale-95 transition-all z-10"
+          >
+            <span className="text-xl">🛒</span>
+            <span className="font-black text-sm">{cart.length}</span>
+          </button>
         </div>
 
         <div className="max-w-6xl mx-auto p-6">
@@ -205,68 +249,147 @@ function App() {
         </div>
       </main>
 
-      {/* --- MODAL IN RECENT PALETTE --- */}
+      {/* MODAL PERFUME */}
       {selectedPerfume && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-[3rem] overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden relative p-8 shadow-2xl">
             <button
               onClick={() => setSelectedPerfume(null)}
-              className="absolute top-6 right-6 z-10 bg-gray-100 text-gray-400 w-10 h-10 rounded-full flex items-center justify-center font-bold hover:bg-[#00a693] hover:text-white transition-colors"
+              className="absolute top-6 right-6 text-gray-400 text-xl"
             >
               ✕
             </button>
 
-            <div className="p-10">
-              <p className="text-[#00a693] font-black tracking-widest text-[10px] uppercase mb-2">
-                {selectedPerfume.brand}
-              </p>
-              <h2 className="text-3xl font-black text-gray-900 mb-6 leading-tight">
-                {selectedPerfume.name}
-              </h2>
+            <p className="text-[#00a693] font-black text-[10px] uppercase mb-1">
+              {selectedPerfume.brand}
+            </p>
+            <h2 className="text-2xl font-black mb-6">{selectedPerfume.name}</h2>
 
-              <div className="mb-8">
-                <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-2">
-                  Про аромат:
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">
+                  Стандартні об'єми:
                 </h4>
-                <p className="text-gray-600 leading-relaxed text-sm">
-                  {selectedPerfume.description ||
-                    "Неймовірний аромат, що підкреслить вашу індивідуальність."}
-                </p>
-              </div>
-
-              <div className="mb-10">
-                <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-4">
-                  Оберіть об'єм:
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   {VOLUMES.map((v) => (
                     <button
                       key={v}
-                      className="bg-gray-50 border-2 border-transparent rounded-3xl px-4 py-4 text-center hover:border-[#00a693] hover:bg-[#00a693]/5 transition-all group"
+                      onClick={() => addToCart(selectedPerfume, v)}
+                      className="bg-gray-100 hover:bg-[#00a693] hover:text-white p-2 rounded-xl transition-colors"
                     >
-                      <p className="text-[10px] font-bold text-gray-400 group-hover:text-[#00a693] mb-1">
-                        {v} мл
-                      </p>
-                      <p className="font-black text-gray-900">
-                        {v * selectedPerfume.pricePerMl} ₴
-                      </p>
+                      <div className="text-[10px] font-bold">{v}мл</div>
+                      <div className="font-black text-xs">
+                        {v * selectedPerfume.pricePerMl}₴
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
 
+              <div>
+                <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">
+                  Власний об'єм (мл):
+                </h4>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Напр. 8"
+                    className="flex-1 bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#00a693]"
+                    value={customVolume}
+                    onChange={(e) => setCustomVolume(e.target.value)}
+                  />
+                  <div className="flex flex-col justify-center px-4 bg-gray-50 rounded-xl border">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">
+                      Ціна
+                    </span>
+                    <span className="font-black">
+                      {(
+                        Number(customVolume) * selectedPerfume.pricePerMl
+                      ).toFixed(0)}{" "}
+                      ₴
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <button
-                onClick={() =>
-                  window.open(
-                    `https://t.me/your_account?text=Хочу замовити ${selectedPerfume.brand} ${selectedPerfume.name}`,
-                    "_blank",
-                  )
-                }
-                className="w-full bg-[#00a693] text-white py-5 rounded-[2rem] font-black shadow-xl shadow-[#00a693]/20 hover:bg-[#008d7d] transition-all active:scale-95"
+                onClick={() => addToCart(selectedPerfume, customVolume)}
+                disabled={!customVolume || customVolume <= 0}
+                className="w-full bg-[#00a693] text-white py-4 rounded-2xl font-black disabled:opacity-50"
               >
-                ЗАМОВИТИ У TELEGRAM
+                ДОДАТИ В КОШИК
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* CART MODAL */}
+      {isCartOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end md:items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden max-h-[80vh] flex flex-col p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-black">Кошик</h2>
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="text-gray-400 font-bold text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4 mb-6 pr-2">
+              {cart.length === 0 ? (
+                <p className="text-center text-gray-400 py-10">
+                  Кошик порожній
+                </p>
+              ) : (
+                cart.map((item) => (
+                  <div
+                    key={item.cartId}
+                    className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl"
+                  >
+                    <div>
+                      <p className="text-[10px] font-black text-[#00a693] uppercase">
+                        {item.brand}
+                      </p>
+                      <p className="font-bold">
+                        {item.name} ({item.volume}мл)
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-black">{item.price} ₴</span>
+                      <button
+                        onClick={() => removeFromCart(item.cartId)}
+                        className="text-red-400 text-sm"
+                      >
+                        Видалити
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="border-t pt-6 space-y-4">
+                <div className="flex justify-between text-xl font-black">
+                  <span>Разом:</span>
+                  <span>{cartTotal} ₴</span>
+                </div>
+                <button
+                  onClick={() =>
+                    window.open(
+                      `https://t.me/your_account?text=${generateTelegramMessage()}`,
+                      "_blank",
+                    )
+                  }
+                  className="w-full bg-[#00a693] text-white py-5 rounded-[2rem] font-black shadow-xl hover:bg-[#008d7d] transition-all"
+                >
+                  ОФОРМИТИ В TELEGRAM
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
