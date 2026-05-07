@@ -43,6 +43,13 @@ function App() {
     [perfumes],
   );
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setFilterCategory("all");
+    setFilterBrand("all");
+    setSortByPrice("none");
+  };
+
   const filteredItems = useMemo(() => {
     let result = [...perfumes];
     if (searchTerm) {
@@ -89,7 +96,7 @@ function App() {
 
         <div className="max-w-6xl mx-auto p-6">
           {/* Пошук та фільтри */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 relative">
             <input
               type="text"
               placeholder="Пошук аромату..."
@@ -99,7 +106,7 @@ function App() {
             />
 
             <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all"
+              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
@@ -111,7 +118,7 @@ function App() {
             </select>
 
             <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693]  transition-all "
+              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
               value={filterBrand}
               onChange={(e) => setFilterBrand(e.target.value)}
             >
@@ -126,7 +133,7 @@ function App() {
             </select>
 
             <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693]  transition-all"
+              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
               value={sortByPrice}
               onChange={(e) => setSortByPrice(e.target.value)}
             >
@@ -135,6 +142,21 @@ function App() {
               <option value="high">Найдорожчі</option>
             </select>
           </div>
+
+          {/* Кнопка скидання  */}
+          {(searchTerm ||
+            filterCategory !== "all" ||
+            filterBrand !== "all" ||
+            sortByPrice !== "none") && (
+            <div className="flex justify-center mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <button
+                onClick={resetFilters}
+                className="text-[10px] font-black text-[#00a693] hover:text-[#008d7d] uppercase tracking-widest flex items-center gap-2 transition-colors"
+              >
+                <span className="text-sm"></span> Скинути всі фільтри
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
