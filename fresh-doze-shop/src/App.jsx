@@ -131,8 +131,20 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 pb-10 text-gray-900 font-sans">
       <>
-        {/* Sticky тільки для зеленого банера */}
-        <div className="sticky top-0 z-30 bg-[#00a693] py-8 px-6 text-center flex flex-col items-center justify-center  shadow-sm">
+        {/* TOP TELEGRAM BAR */}
+        <div className="sticky top-0 z-40 bg-[#008d7d] py-2 px-4 text-center">
+          <a
+            href="https://t.me/FreshDozeClub"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] font-black text-white uppercase tracking-[0.2em] hover:underline"
+          >
+            🔥 Приєднатись до телеграм каналу
+          </a>
+        </div>
+
+        {/* GREEN STICKY BANNER */}
+        <div className="sticky top-[40px] z-30 bg-[#00a693] py-8 px-6 text-center  flex flex-col items-center justify-center  shadow-sm">
           {/* Назва бренду */}
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
             FreshDoze
