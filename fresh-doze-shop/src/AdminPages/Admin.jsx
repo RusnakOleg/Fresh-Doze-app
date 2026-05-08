@@ -654,13 +654,13 @@ export default function Admin() {
             <div className="p-6 bg-gray-50 border-t flex gap-4">
               <button
                 onClick={handlePrint}
-                className="flex-1 bg-[#00a693] text-white p-4 rounded-2xl font-black shadow-lg hover:shadow-xl transition-all"
+                className="flex-1 bg-[#00a693] hover:bg-[#008d7d] text-white p-4 rounded-2xl font-black shadow-lg hover:shadow-xl transition-all"
               >
                 ЗБЕРЕГТИ PDF / ДРУК
               </button>
               <button
                 onClick={() => setOrderItems([])}
-                className="px-6 bg-gray-200 text-gray-600 rounded-2xl font-bold"
+                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-2xl font-bold"
               >
                 ОЧИСТИТИ
               </button>
