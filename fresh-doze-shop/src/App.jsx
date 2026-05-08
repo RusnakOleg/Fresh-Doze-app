@@ -130,19 +130,20 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10 text-gray-900 font-sans">
-      {/* HEADER WITH BANNER COLORS */}
-      <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
-        {/* Banner Section */}
-        <div className="bg-[#00a693] py-8 px-6 text-center relative flex flex-col items-center justify-center min-h-[140px]">
+      <>
+        {/* Sticky тільки для зеленого банера */}
+        <div className="sticky top-0 z-30 bg-[#00a693] py-8 px-6 text-center flex flex-col items-center justify-center  shadow-sm">
           {/* Назва бренду */}
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
             FreshDoze
           </h1>
+
           {/* Підзаголовок */}
           <p className="text-white/80 text-xs font-bold mt-2 tracking-[0.2em] uppercase">
             Premium Perfume Decants
           </p>
-          {/* Кнопка кошика - тепер вона завжди по центру праворуч відносно висоти банера */}
+
+          {/* Кошик */}
           <button
             onClick={() => setIsCartOpen(true)}
             className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white text-[#00a693] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-xl flex items-center justify-center gap-1 hover:scale-110 active:scale-95 transition-all z-10"
@@ -152,71 +153,76 @@ function App() {
           </button>
         </div>
 
-        <div className="max-w-6xl mx-auto p-6">
-          {/* Пошук та фільтри */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 relative">
-            <input
-              type="text"
-              placeholder="Пошук аромату..."
-              className="p-3 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693] text-sm transition-all"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        {/* Header з пошуком і фільтрами */}
+        <header className="bg-white border-b shadow-sm">
+          <div className="max-w-6xl mx-auto p-6">
+            {/* Пошук та фільтри */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 relative">
+              <input
+                type="text"
+                placeholder="Пошук аромату..."
+                className="p-3 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693] text-sm transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
 
-            <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-            >
-              {CATEGORIES.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
-              value={filterBrand}
-              onChange={(e) => setFilterBrand(e.target.value)}
-            >
-              <option value="all">Усі бренди</option>
-              {uniqueBrands
-                .filter((b) => b !== "all")
-                .map((b) => (
-                  <option key={b} value={b}>
-                    {b}
+              <select
+                className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
                   </option>
                 ))}
-            </select>
+              </select>
 
-            <select
-              className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
-              value={sortByPrice}
-              onChange={(e) => setSortByPrice(e.target.value)}
-            >
-              <option value="none">Сортування</option>
-              <option value="low">Найдешевші</option>
-              <option value="high">Найдорожчі</option>
-            </select>
-          </div>
-
-          {/* Кнопка скидання  */}
-          {(searchTerm ||
-            filterCategory !== "all" ||
-            filterBrand !== "all" ||
-            sortByPrice !== "none") && (
-            <div className="flex justify-center mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-              <button
-                onClick={resetFilters}
-                className="text-[10px] font-black text-[#00a693] hover:text-[#008d7d] uppercase tracking-widest flex items-center gap-2 transition-colors"
+              <select
+                className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
+                value={filterBrand}
+                onChange={(e) => setFilterBrand(e.target.value)}
               >
-                <span className="text-sm"></span> Скинути всі фільтри
-              </button>
+                <option value="all">Усі бренди</option>
+
+                {uniqueBrands
+                  .filter((b) => b !== "all")
+                  .map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+              </select>
+
+              <select
+                className="p-3 bg-gray-100 rounded-2xl outline-none text-sm font-bold text-gray-600 focus:ring-2 focus:ring-[#00a693] transition-all cursor-pointer"
+                value={sortByPrice}
+                onChange={(e) => setSortByPrice(e.target.value)}
+              >
+                <option value="none">Сортування</option>
+                <option value="low">Найдешевші</option>
+                <option value="high">Найдорожчі</option>
+              </select>
             </div>
-          )}
-        </div>
-      </header>
+
+            {/* Кнопка скидання */}
+            {(searchTerm ||
+              filterCategory !== "all" ||
+              filterBrand !== "all" ||
+              sortByPrice !== "none") && (
+              <div className="flex justify-center mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <button
+                  onClick={resetFilters}
+                  className="text-[10px] font-black text-[#00a693] hover:text-[#008d7d] uppercase tracking-widest flex items-center gap-2 transition-colors"
+                >
+                  <span className="text-sm"></span>
+                  Скинути всі фільтри
+                </button>
+              </div>
+            )}
+          </div>
+        </header>
+      </>
 
       {/* Grid */}
       <main className="max-w-6xl mx-auto px-4 mt-6">
