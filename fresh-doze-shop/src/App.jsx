@@ -144,7 +144,7 @@ function App() {
         </div>
 
         {/* GREEN STICKY BANNER */}
-        <div className="sticky top-[40px] z-30 bg-[#00a693] py-8 px-6 text-center  flex flex-col items-center justify-center  shadow-sm">
+        <div className="sticky top-[40px] z-30 bg-[#00a693] py-6 px-4 text-center  flex flex-col items-center justify-center min-h-[80px] shadow-sm">
           {/* Назва бренду */}
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
             FreshDoze
