@@ -10,7 +10,7 @@ const CATEGORIES = [
   { id: "arabic", name: "Арабські" },
 ];
 
-const VOLUMES = [3, 5, 10, 15];
+const VOLUMES = [3, 5, 10];
 
 function App() {
   const [perfumes, setPerfumes] = useState([]);
@@ -61,6 +61,9 @@ function App() {
       message += `${index + 1}. ${item.brand} ${item.name} — ${item.volume}мл (${item.price} ₴)\n`;
     });
     message += `\nРазом до сплати: ${cartTotal} ₴`;
+    // Додаємо примітку
+    message += `\n\n*Примітка: ціна за стандартні об'єми (3, 5, 10мл) вже включає вартість флакона. Для власного об'єму ціна вказана тільки за парфуми.`;
+
     setOrderText(message);
   };
 
@@ -290,13 +293,17 @@ function App() {
                     >
                       <div className="text-[10px] font-bold">{v}мл</div>
                       <div className="font-black text-xs">
-                        {v * selectedPerfume.pricePerMl}₴
+                        {v == 3 || 5
+                          ? v * selectedPerfume.pricePerMl + 25
+                          : v * selectedPerfume.pricePerMl + 27}
+                        ₴
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
 
+              {/* У секції Власний об'єм (мл) */}
               <div>
                 <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">
                   Власний об'єм (мл):
@@ -321,12 +328,18 @@ function App() {
                     </span>
                   </div>
                 </div>
+
+                {/* Додаємо це попередження */}
+                <p className="text-[9px] text-orange-500 font-bold mt-2 uppercase tracking-tight">
+                  * Ціна для власного об'єму вказана без урахування вартості
+                  флакона
+                </p>
               </div>
 
               <button
                 onClick={() => addToCart(selectedPerfume, customVolume)}
                 disabled={!customVolume || customVolume <= 0}
-                className="w-full bg-[#00a693] text-white py-4 rounded-2xl font-black disabled:opacity-50"
+                className="w-full bg-[#00a693] hover:bg-[#008d7d] text-white py-4 rounded-2xl font-black disabled:opacity-50"
               >
                 ДОДАТИ В КОШИК
               </button>
@@ -407,34 +420,50 @@ function App() {
 
       {/* MODAL FOR COPYING TEXT */}
       {orderText && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
-            <h3 className="text-xl font-black mb-4">Ваше замовлення готове</h3>
-            <p className="text-sm text-gray-500 mb-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+            <h3 className="text-xl font-black mb-2 text-gray-900">
+              Ваше замовлення готове
+            </h3>
+            <p className="text-xs text-gray-400 mb-4 font-bold uppercase tracking-wider">
               Скопіюйте текст нижче та надішліть його нам у Telegram
             </p>
 
-            <div className="relative group">
+            {/* Контейнер тексту */}
+            <div className="flex flex-col gap-3">
               <textarea
                 readOnly
                 value={orderText}
-                className="w-full h-48 p-4 bg-gray-100 rounded-2xl text-sm font-medium text-gray-700 resize-none border-2 border-transparent focus:border-[#00a693] outline-none"
+                className="w-full h-48 p-5 bg-gray-100 rounded-[1.5rem] text-sm font-bold text-gray-700 resize-none border-2 border-transparent focus:border-[#00a693] outline-none leading-relaxed custom-scrollbar"
               />
+              {/* Кнопка Копіювати тепер під текстом */}
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(orderText);
                   alert("Текст скопійовано!");
                 }}
-                className="absolute bottom-4 right-4 bg-white shadow-md text-[#00a693] px-4 py-2 rounded-xl font-bold text-xs hover:bg-gray-50 transition-colors"
+                className="w-full bg-gray-100 text-[#00a693] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#00a693] hover:text-white transition-all flex items-center justify-center gap-2"
               >
-                Копіювати 📋
+                Копіювати текст 📋
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-6">
+            {/* Блок з попередженням */}
+            <div className="mt-4 p-3 bg-orange-50 rounded-xl border border-orange-100">
+              <p className="text-[11px] text-orange-700 font-bold leading-tight flex gap-2">
+                <span>⚠️</span>
+                <span>
+                  УВАГА: В замовленні для власного об'єму ціна вказана ТІЛЬКИ за
+                  рідину. Вартість флакона буде додана адміном та зможете
+                  побачити ії у фінальному чеку.
+                </span>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-6">
               <button
                 onClick={() => setOrderText("")}
-                className="py-4 rounded-2xl font-bold text-gray-400 hover:bg-gray-100 transition-colors"
+                className="py-4 rounded-[1.5rem] font-black text-gray-400 text-sm uppercase tracking-widest bg-gray-100 hover:bg-gray-200 transition-colors"
               >
                 Назад
               </button>
@@ -442,7 +471,7 @@ function App() {
                 onClick={() =>
                   window.open(`https://t.me/your_account`, "_blank")
                 }
-                className="py-4 bg-[#00a693] text-white rounded-2xl font-black shadow-lg hover:bg-[#008d7d] transition-all"
+                className="py-4 bg-[#00a693] text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-[#00a693]/20 hover:bg-[#008d7d] active:scale-95 transition-all"
               >
                 У Telegram
               </button>
