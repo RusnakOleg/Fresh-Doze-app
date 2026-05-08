@@ -459,6 +459,19 @@ function App() {
                 </span>
               </p>
             </div>
+            {/* Доставка та оплата */}
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] uppercase font-black tracking-tight">
+              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <p className="text-[#00a693] mb-1">💳 Оплата</p>
+                <p className="text-gray-500">
+                  Карта або При отриманні (+3% + 35₴)
+                </p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <p className="text-[#00a693] mb-1">🚚 Доставка</p>
+                <p className="text-gray-500">НП (65₴) / Укрпошта (40₴)</p>
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 gap-4 mt-6">
               <button
