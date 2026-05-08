@@ -27,6 +27,8 @@ function App() {
   const [selectedPerfume, setSelectedPerfume] = useState(null);
   const [customVolume, setCustomVolume] = useState("");
 
+  const [orderText, setOrderText] = useState("");
+
   useEffect(() => {
     const fetchPerfumes = async () => {
       try {
@@ -51,6 +53,15 @@ function App() {
     setFilterCategory("all");
     setFilterBrand("all");
     setSortByPrice("none");
+  };
+
+  const handleGenerateText = () => {
+    let message = "Вітаю! Хочу зробити замовлення:\n\n";
+    cart.forEach((item, index) => {
+      message += `${index + 1}. ${item.brand} ${item.name} — ${item.volume}мл (${item.price} ₴)\n`;
+    });
+    message += `\nРазом до сплати: ${cartTotal} ₴`;
+    setOrderText(message);
   };
 
   const filteredItems = useMemo(() => {
@@ -327,13 +338,12 @@ function App() {
       {/* CART MODAL */}
       {isCartOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          {/* Змінено: rounded-t-[2.5rem] md:rounded-[2.5rem] на стабільний rounded-[2.5rem] */}
           <div className="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden max-h-[90vh] flex flex-col p-8 shadow-2xl animate-in zoom-in-95 duration-300">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-black">Кошик</h2>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="text-gray-400 hover:text-[#00a693] font-bold text-xl transition-colors"
+                className="text-gray-400 hover:text-[#00a693] font-bold text-xl"
               >
                 ✕
               </button>
@@ -360,7 +370,7 @@ function App() {
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className="font-black text-gray-900 whitespace-nowrap">
+                      <span className="font-black text-gray-900">
                         {item.price} ₴
                       </span>
                       <button
@@ -384,18 +394,59 @@ function App() {
                   <span>{cartTotal} ₴</span>
                 </div>
                 <button
-                  onClick={() =>
-                    window.open(
-                      `https://t.me/your_account?text=${generateTelegramMessage()}`,
-                      "_blank",
-                    )
-                  }
-                  className="w-full bg-[#00a693] text-white py-5 rounded-[2rem] font-black shadow-xl shadow-[#00a693]/20 hover:bg-[#008d7d] active:scale-95 transition-all"
+                  onClick={handleGenerateText}
+                  className="w-full bg-[#00a693] text-white py-5 rounded-[2rem] font-black shadow-xl shadow-[#00a693]/20 hover:bg-[#008d7d] active:scale-95 transition-all uppercase tracking-tight"
                 >
-                  ОФОРМИТИ В TELEGRAM
+                  Згенерувати текст замовлення
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL FOR COPYING TEXT */}
+      {orderText && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h3 className="text-xl font-black mb-4">Ваше замовлення готове</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Скопіюйте текст нижче та надішліть його нам у Telegram
+            </p>
+
+            <div className="relative group">
+              <textarea
+                readOnly
+                value={orderText}
+                className="w-full h-48 p-4 bg-gray-100 rounded-2xl text-sm font-medium text-gray-700 resize-none border-2 border-transparent focus:border-[#00a693] outline-none"
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(orderText);
+                  alert("Текст скопійовано!");
+                }}
+                className="absolute bottom-4 right-4 bg-white shadow-md text-[#00a693] px-4 py-2 rounded-xl font-bold text-xs hover:bg-gray-50 transition-colors"
+              >
+                Копіювати 📋
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mt-6">
+              <button
+                onClick={() => setOrderText("")}
+                className="py-4 rounded-2xl font-bold text-gray-400 hover:bg-gray-100 transition-colors"
+              >
+                Назад
+              </button>
+              <button
+                onClick={() =>
+                  window.open(`https://t.me/your_account`, "_blank")
+                }
+                className="py-4 bg-[#00a693] text-white rounded-2xl font-black shadow-lg hover:bg-[#008d7d] transition-all"
+              >
+                У Telegram
+              </button>
+            </div>
           </div>
         </div>
       )}
