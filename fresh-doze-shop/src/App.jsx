@@ -302,6 +302,30 @@ function App() {
             </p>
             <h2 className="text-2xl font-black mb-6">{selectedPerfume.name}</h2>
 
+            <div className="mb-6 space-y-4">
+              {selectedPerfume.notes && (
+                <div>
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-widest">
+                    Ноти аромату:
+                  </h4>
+                  <p className="text-xs font-bold text-orange-500 uppercase tracking-wide italic">
+                    {selectedPerfume.notes}
+                  </p>
+                </div>
+              )}
+
+              {selectedPerfume.description && (
+                <div>
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-widest">
+                    Про аромат:
+                  </h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {selectedPerfume.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
             <div className="space-y-6">
               <div>
                 <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">
