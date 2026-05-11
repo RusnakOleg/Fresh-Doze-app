@@ -1,16 +1,14 @@
-# React + Vite
+# FreshDoze — Premium Perfume Decants Store
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**FreshDoze** is a modern web application for a perfume decant shop, built using the **React + Firebase** stack. The project is focused on maximum user convenience (UX/UI) and streamlined order processing via Telegram.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Features
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Dynamic Storefront**: Over 450 scents with instant filtering by categories (Men, Women, Niche, Arabic) and brands.
+- **Smart Shopping Cart**: Supports multiple volumes (3, 5, 10 ml) and allows users to input custom milliliter amounts.
+- **Intelligent Cost Calculation**: Automatically includes bottle costs for standard volumes and provides dynamic price updates for custom amounts.
+- **Order Generation**: The system automatically generates a structured order summary, including a list of items and the total price, ready to be sent to the admin via Telegram.
+- **Mobile-First Design**: A fully responsive interface with `sticky` elements (Brand Banner, Telegram News Bar) optimized for smartphone browsing.
+- **Info Panel**: Displays up-to-date shipping (Nova Poshta/Ukrposhta) and payment information directly during the checkout process.
