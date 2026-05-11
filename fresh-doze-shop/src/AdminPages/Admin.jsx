@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { PencilLine, Trash2 } from "lucide-react";
 
 export default function Admin() {
   const [perfumes, setPerfumes] = useState([]);
@@ -403,7 +404,9 @@ export default function Admin() {
           <div className="flex gap-3 mt-6">
             <button
               className={`flex-1 p-5 rounded-[2rem] font-black text-white transition shadow-lg ${
-                editId ? "bg-orange-500" : "bg-[#00a693] hover:bg-[#008d7d]"
+                editId
+                  ? "bg-orange-500 hover:bg-orange-600"
+                  : "bg-[#00a693] hover:bg-[#008d7d]"
               }`}
             >
               {editId ? "ОНОВИТИ ДАНІ" : "ЗБЕРЕГТИ В БАЗУ"}
@@ -412,7 +415,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-8 bg-gray-200 rounded-[2rem] font-black"
+                className="px-8 bg-gray-200 hover:bg-gray-300 rounded-[2rem] font-black"
               >
                 СКАСУВАТИ
               </button>
@@ -530,9 +533,9 @@ export default function Admin() {
                 </button>
                 <button
                   onClick={() => startEdit(p)}
-                  className="p-3 bg-gray-50 text-orange-500 rounded-2xl hover:bg-orange-50"
+                  className="p-3 bg-gray-50 text-gray-600 rounded-xl hover:bg-orange-500 hover:text-white transition-colors"
                 >
-                  ✏️
+                  <PencilLine size={18} strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => toggleAvailability(p.id, p.isAvailable)}
@@ -546,9 +549,9 @@ export default function Admin() {
                 </button>
                 <button
                   onClick={() => handleDelete(p.id)}
-                  className="p-3 bg-gray-50 text-red-400 rounded-2xl hover:bg-red-50"
+                  className="p-3 bg-gray-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-colors"
                 >
-                  🗑️
+                  <Trash2 size={18} strokeWidth={2.5} />
                 </button>
               </div>
             </div>

@@ -1,6 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { db } from "./firebase.js";
 import { collection, getDocs } from "firebase/firestore";
+import {
+  ShoppingCart,
+  CreditCard,
+  Copy,
+  Truck,
+  TriangleAlert,
+  Flame,
+} from "lucide-react";
 
 const CATEGORIES = [
   { id: "all", name: "Всі" },
@@ -132,19 +140,25 @@ function App() {
     <div className="min-h-screen bg-gray-50 pb-10 text-gray-900 font-sans">
       <>
         {/* TOP TELEGRAM BAR */}
-        <div className="sticky top-0 z-40 bg-[#008d7d] py-2 px-4 text-center">
+        <div className="sticky top-0 z-40 bg-[#008d7d] py-2.5 px-4 text-center shadow-inner">
           <a
             href="https://t.me/FreshDozeClub"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[10px] font-black text-white uppercase tracking-[0.2em] hover:underline"
+            className="flex items-center justify-center gap-2.5 text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em] hover:opacity-85 transition-opacity"
           >
-            🔥 Приєднатись до телеграм каналу
+            <Flame
+              size={17}
+              strokeWidth={3}
+              className="text-orange-500 animate-pulse shrink-0"
+              style={{ animationDuration: "1.5s" }}
+            />
+            <span className="leading-none">Приєднатись до телеграм каналу</span>
           </a>
         </div>
 
         {/* GREEN STICKY BANNER */}
-        <div className="sticky top-[40px] z-30 bg-[#00a693] py-6 px-4 text-center  flex flex-col items-center justify-center min-h-[80px] shadow-sm">
+        <div className="sticky top-[37px] z-30 bg-[#00a693] py-6 px-4 text-center  flex flex-col items-center justify-center min-h-[80px] shadow-sm">
           {/* Назва бренду */}
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter drop-shadow-md">
             FreshDoze
@@ -160,7 +174,9 @@ function App() {
             onClick={() => setIsCartOpen(true)}
             className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white text-[#00a693] w-12 h-12 md:w-14 md:h-14 rounded-full shadow-xl flex items-center justify-center gap-1 hover:scale-110 active:scale-95 transition-all z-10"
           >
-            <span className="text-xl">🛒</span>
+            <span className="text-xl">
+              <ShoppingCart size={22} strokeWidth={2.5} />
+            </span>
             <span className="font-black text-sm">{cart.length}</span>
           </button>
         </div>
@@ -412,7 +428,11 @@ function App() {
             <div className="flex-1 overflow-y-auto space-y-4 mb-6 pr-2 custom-scrollbar">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-                  <span className="text-4xl mb-2">🛒</span>
+                  <ShoppingCart
+                    size={48}
+                    strokeWidth={1.8}
+                    className="mb-3 opacity-20"
+                  />
                   <p className="font-bold">Кошик порожній</p>
                 </div>
               ) : (
@@ -491,14 +511,16 @@ function App() {
                 }}
                 className="w-full bg-gray-100 text-[#00a693] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#00a693] hover:text-white transition-all flex items-center justify-center gap-2"
               >
-                Копіювати текст 📋
+                Копіювати текст <Copy size={14} strokeWidth={3} />
               </button>
             </div>
 
             {/* Блок з попередженням */}
             <div className="mt-4 p-3 bg-orange-50 rounded-xl border border-orange-100">
               <p className="text-[11px] text-orange-700 font-bold leading-tight flex gap-2">
-                <span>⚠️</span>
+                <span>
+                  <TriangleAlert size={18} strokeWidth={2.5} />
+                </span>
                 <span>
                   УВАГА: В замовленні для власного об'єму ціна вказана ТІЛЬКИ за
                   рідину. Вартість флакона буде додана адміном та зможете
@@ -508,15 +530,28 @@ function App() {
             </div>
             {/* Доставка та оплата */}
             <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] uppercase font-black tracking-tight">
-              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                <p className="text-[#00a693] mb-1">💳 Оплата</p>
-                <p className="text-gray-500">
+              {/* Блок Оплата */}
+              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col">
+                {/* Додано flex items-center та h-5 для стабільної висоти рядка */}
+                <div className="flex items-center gap-2 text-[#00a693] mb-1 h-5">
+                  <CreditCard size={14} strokeWidth={3} className="shrink-0" />
+                  <span className="leading-none">Оплата</span>
+                </div>
+                <p className="text-gray-500 leading-tight">
                   Карта або При отриманні (+3% + 35₴)
                 </p>
               </div>
-              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                <p className="text-[#00a693] mb-1">🚚 Доставка</p>
-                <p className="text-gray-500">НП (65₴) / Укрпошта (40₴)</p>
+
+              {/* Блок Доставка */}
+              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col">
+                {/* Аналогічно для доставки */}
+                <div className="flex items-center gap-2 text-[#00a693] mb-1 h-5">
+                  <Truck size={14} strokeWidth={3} className="shrink-0" />
+                  <span className="leading-none">Доставка</span>
+                </div>
+                <p className="text-gray-500 leading-tight">
+                  НП (65₴) / Укрпошта (40₴)
+                </p>
               </div>
             </div>
 
