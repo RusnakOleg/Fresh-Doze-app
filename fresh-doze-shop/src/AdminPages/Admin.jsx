@@ -494,7 +494,7 @@ export default function Admin() {
             >
               <img
                 src={p.imageUrl || "https://via.placeholder.com/150"}
-                className="w-20 h-20 object-cover rounded-2xl bg-gray-100"
+                className="w-20 h-20 object-contain rounded-2xl border border-[#00a693] "
                 alt=""
               />
               <div className="flex-1 text-center md:text-left">
