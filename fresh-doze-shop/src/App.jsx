@@ -304,64 +304,103 @@ function App() {
 
       {/* Grid */}
       <main className="max-w-6xl mx-auto px-4 mt-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 ">
-          {currentItems.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => setSelectedPerfume(p)}
-              /* Додано flex flex-col h-full для правильного розтягування фону */
-              className="rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative border-2 border-[#00a693] flex flex-col h-full bg-white"
-            >
-              {/* Фото */}
-              <div className="aspect-square overflow-hidden flex items-center justify-center p-2">
-                <img
-                  src={p.imageUrl}
-                  className="max-w-full max-h-full object-contain mix-blend-darken transition-transform duration-500 group-hover:scale-105"
-                  alt={p.name}
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Текстовий блок  */}
-              <div className="p-4 bg-gray-100 flex-1 flex flex-col justify-between">
-                <div>
-                  <p className="text-[10px] font-black text-[#00a693] uppercase tracking-[0.15em] mb-1">
-                    {p.brand}
-                  </p>
-                  <h3 className="font-bold text-gray-900 truncate text-sm md:text-base leading-tight">
-                    {p.name}
-                  </h3>
-                  <p className="text-[8px] text-orange-500 font-bold uppercase mt-1 line-clamp-1 tracking-wider min-h-[12px]">
-                    {p.notes ? p.notes : ""}
-                  </p>
+        {currentItems.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 ">
+            {currentItems.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => setSelectedPerfume(p)}
+                /* Додано flex flex-col h-full для правильного розтягування фону */
+                className="rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative border-2 border-[#00a693] flex flex-col h-full bg-white"
+              >
+                {/* Фото */}
+                <div className="aspect-square overflow-hidden flex items-center justify-center p-2">
+                  <img
+                    src={p.imageUrl}
+                    className="max-w-full max-h-full object-contain mix-blend-darken transition-transform duration-500 group-hover:scale-105"
+                    alt={p.name}
+                    loading="lazy"
+                  />
                 </div>
 
-                <div className="flex items-center justify-between mt-3">
-                  <p className="text-sm font-black text-gray-800">
-                    {p.pricePerMl}{" "}
-                    <span className="text-[10px] text-gray-400 font-bold">
-                      ₴/мл
-                    </span>
-                  </p>
-                  {/* Невелика біла плашка для контрасту ціни */}
-                  <div className="w-2 h-2 rounded-full bg-[#00a693]"></div>
+                {/* Текстовий блок  */}
+                <div className="p-4 bg-gray-100 flex-1 flex flex-col justify-between">
+                  <div>
+                    <p className="text-[10px] font-black text-[#00a693] uppercase tracking-[0.15em] mb-1">
+                      {p.brand}
+                    </p>
+                    <h3 className="font-bold text-gray-900 truncate text-sm md:text-base leading-tight">
+                      {p.name}
+                    </h3>
+                    <p className="text-[8px] text-orange-500 font-bold uppercase mt-1 line-clamp-1 tracking-wider min-h-[12px]">
+                      {p.notes ? p.notes : ""}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-sm font-black text-gray-800">
+                      {p.pricePerMl}{" "}
+                      <span className="text-[10px] text-gray-400 font-bold">
+                        ₴/мл
+                      </span>
+                    </p>
+                    {/* Невелика біла плашка для контрасту ціни */}
+                    <div className="w-2 h-2 rounded-full bg-[#00a693]"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          /* ЛАКОНІЧНИЙ ВИВІД ТЕКСТУ */
+          <div className="text-center py-20">
+            <p className="text-gray-400 font-bold tracking-wide">
+              Нічого не знайдено за вашим запитом
+            </p>
+          </div>
+        )}
+
         {/* КОМПАКТНИЙ БЛОК ПАГІНАЦІЇ */}
-        <div className="max-w-4xl mx-auto px-4 mt-8 mb-6 flex flex-col items-center gap-6">
-          {/* Компактна кнопка "Показати ще" */}
-          {currentPage + displayedPagesCount - 1 < totalPages && (
-            <button
-              onClick={handleShowMore}
-              className="flex items-center gap-2.5 px-6 py-2 border border-[#00a693]/20 rounded-full text-[#00a693] hover:bg-[#00a693] hover:text-white transition-all duration-300 group shadow-sm"
-            >
-              <div className="group-hover:rotate-180 transition-transform duration-500">
+        {currentItems.length > 0 && totalPages > 1 && (
+          <div className="max-w-4xl mx-auto px-4 mt-8 mb-6 flex flex-col items-center gap-6">
+            {/* Компактна кнопка "Показати ще" */}
+            {currentPage + displayedPagesCount - 1 < totalPages && (
+              <button
+                onClick={handleShowMore}
+                className="flex items-center gap-2.5 px-6 py-2 border border-[#00a693]/20 rounded-full text-[#00a693] hover:bg-[#00a693] hover:text-white transition-all duration-300 group shadow-sm"
+              >
+                <div className="group-hover:rotate-180 transition-transform duration-500">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                    <path d="M21 3v5h-5" />
+                  </svg>
+                </div>
+                <span className="font-black text-[10px] uppercase tracking-widest">
+                  Показати ще
+                </span>
+              </button>
+            )}
+
+            {/* Номери сторінок */}
+            <div className="flex items-center gap-1 text-[13px]">
+              {/* Стрілка вліво */}
+              <button
+                disabled={currentPage === 1}
+                onClick={() => handlePageClick(currentPage - 1)}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
+              >
                 <svg
-                  width="16"
-                  height="16"
+                  width="17"
+                  height="17"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -369,100 +408,73 @@ function App() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                  <path d="M21 3v5h-5" />
+                  <path d="m15 18-6-6 6-6" />
                 </svg>
+              </button>
+
+              <div className="flex gap-1">
+                {[...Array(totalPages)].map((_, i) => {
+                  const page = i + 1;
+                  // Визначаємо, чи є сторінка "активною" (входить в діапазон розгорнутих)
+                  const isSelected =
+                    page >= currentPage &&
+                    page < currentPage + displayedPagesCount;
+
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 &&
+                      page <= currentPage + displayedPagesCount)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageClick(page)}
+                        className={`w-9 h-9 rounded-xl font-black transition-all border-2 ${
+                          isSelected
+                            ? "border-[#00a693] text-[#00a693]" // Синя рамка для всіх розгорнутих сторінок
+                            : "border-transparent text-gray-400 hover:text-[#00a693]"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + displayedPagesCount + 1
+                  ) {
+                    return (
+                      <span key={page} className="text-gray-300">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
               </div>
-              <span className="font-black text-[10px] uppercase tracking-widest">
-                Показати ще
-              </span>
-            </button>
-          )}
 
-          {/* Номери сторінок */}
-          <div className="flex items-center gap-1 text-[13px]">
-            {/* Стрілка вліво */}
-            <button
-              disabled={currentPage === 1}
-              onClick={() => handlePageClick(currentPage - 1)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
-            >
-              <svg
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              {/* Стрілка вправо */}
+              <button
+                disabled={currentPage + displayedPagesCount - 1 >= totalPages}
+                onClick={handleNextPage}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
               >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
-
-            <div className="flex gap-1">
-              {[...Array(totalPages)].map((_, i) => {
-                const page = i + 1;
-                // Визначаємо, чи є сторінка "активною" (входить в діапазон розгорнутих)
-                const isSelected =
-                  page >= currentPage &&
-                  page < currentPage + displayedPagesCount;
-
-                if (
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 1 &&
-                    page <= currentPage + displayedPagesCount)
-                ) {
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageClick(page)}
-                      className={`w-9 h-9 rounded-xl font-black transition-all border-2 ${
-                        isSelected
-                          ? "border-[#00a693] text-[#00a693]" // Синя рамка для всіх розгорнутих сторінок
-                          : "border-transparent text-gray-400 hover:text-[#00a693]"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                } else if (
-                  page === currentPage - 2 ||
-                  page === currentPage + displayedPagesCount + 1
-                ) {
-                  return (
-                    <span key={page} className="text-gray-300">
-                      ...
-                    </span>
-                  );
-                }
-                return null;
-              })}
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
             </div>
-
-            {/* Стрілка вправо */}
-            <button
-              disabled={currentPage + displayedPagesCount - 1 >= totalPages}
-              onClick={handleNextPage}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
-            >
-              <svg
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
           </div>
-        </div>
+        )}
       </main>
 
       {/* MODAL PERFUME */}
