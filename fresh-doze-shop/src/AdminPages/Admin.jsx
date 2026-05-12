@@ -402,12 +402,14 @@ export default function Admin() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
+              required
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
               placeholder="Бренд"
               className="p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
             />
             <input
+              required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Назва"
@@ -439,13 +441,16 @@ export default function Admin() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <input
+              required
               value={price}
               type="number"
+              min="0"
               onChange={(e) => setPrice(e.target.value)}
               placeholder="Ціна за мл"
               className="p-4 bg-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00a693]"
             />
             <input
+              required
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="URL картинки"
