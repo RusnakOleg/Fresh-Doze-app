@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { db, auth } from "../firebase";
 import {
   collection,
@@ -37,6 +37,13 @@ export default function Admin() {
   const [orderItems, setOrderItems] = useState([]);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
+  // Стейт для пагінації
+  const [currentPage, setCurrentPage] = useState(1);
+  const [displayedPagesCount, setDisplayedPagesCount] = useState(1);
+  const itemsPerPage = 8;
+
+  const listTopRef = useRef(null);
+
   const CATEGORIES = [
     { id: "men", name: "Чоловіча" },
     { id: "women", name: "Жіноча" },
@@ -49,6 +56,8 @@ export default function Admin() {
     setFilterCategory("all");
     setFilterBrand("all");
     setSortByPrice("none");
+    setCurrentPage(1);
+    setDisplayedPagesCount(1);
   };
 
   useEffect(() => {
@@ -150,6 +159,48 @@ export default function Admin() {
     () => ["all", ...new Set(perfumes.map((p) => p.brand))],
     [perfumes],
   );
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setDisplayedPagesCount(1);
+  }, [searchTerm, filterCategory, filterBrand, sortByPrice]);
+
+  const totalPages = Math.ceil(filteredPerfumes.length / itemsPerPage);
+
+  const currentItems = useMemo(() => {
+    return filteredPerfumes.slice(
+      (currentPage - 1) * itemsPerPage,
+      (currentPage - 1) * itemsPerPage + displayedPagesCount * itemsPerPage,
+    );
+  }, [filteredPerfumes, currentPage, displayedPagesCount]);
+
+  const handleShowMore = () => {
+    if (currentPage + displayedPagesCount <= totalPages) {
+      setDisplayedPagesCount((prev) => prev + 1);
+    }
+  };
+
+  const scrollToItems = () => {
+    if (listTopRef.current) {
+      listTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    setDisplayedPagesCount(1);
+    // Замість window.scrollTo використовуємо нашу функцію:
+    setTimeout(scrollToItems, 100);
+  };
+
+  const handleNextPage = () => {
+    const nextTargetPage = currentPage + displayedPagesCount;
+    if (nextTargetPage <= totalPages) {
+      setCurrentPage(nextTargetPage);
+      setDisplayedPagesCount(1);
+      setTimeout(scrollToItems, 100); // Додаємо невелику затримку для плавності
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -424,7 +475,10 @@ export default function Admin() {
         </form>
 
         {/* ФІЛЬТРИ */}
-        <div className="bg-gray-100 p-6 rounded-[2rem] mb-8">
+        <div
+          ref={listTopRef}
+          className="bg-gray-100 p-6 rounded-[2rem] mb-8 scroll-mt-24"
+        >
           {/* Грід тільки для полів вводу */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <input
@@ -488,7 +542,7 @@ export default function Admin() {
 
         {/* СПИСОК КАРТОЧОК */}
         <div className="flex flex-col gap-4">
-          {filteredPerfumes.map((p) => (
+          {currentItems.map((p) => (
             <div
               key={p.id}
               className={`flex flex-col md:flex-row items-center gap-4 p-4 bg-white border border-[#00a693] rounded-3xl transition-all hover:shadow-md ${
@@ -557,6 +611,119 @@ export default function Admin() {
             </div>
           ))}
         </div>
+        {/* КОМПАКТНИЙ БЛОК ПАГІНАЦІЇ (вставити під списком) */}
+        {totalPages > 1 && (
+          <div className="max-w-4xl mx-auto px-4 mt-12 mb-10 flex flex-col items-center gap-6 print:hidden">
+            {/* Кнопка "Показати ще" */}
+            {currentPage + displayedPagesCount - 1 < totalPages && (
+              <button
+                onClick={handleShowMore}
+                className="flex items-center gap-2.5 px-6 py-2 border border-[#00a693]/20 rounded-full text-[#00a693] hover:bg-[#00a693] hover:text-white transition-all duration-300 group shadow-sm"
+              >
+                <div className="group-hover:rotate-180 transition-transform duration-500">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                    <path d="M21 3v5h-5" />
+                  </svg>
+                </div>
+                <span className="font-black text-[10px] uppercase tracking-widest">
+                  Показати ще
+                </span>
+              </button>
+            )}
+
+            <div className="flex items-center gap-1 text-[13px]">
+              {/* Стрілка вліво */}
+              <button
+                disabled={currentPage === 1}
+                onClick={() => handlePageClick(currentPage - 1)}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
+              >
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+
+              <div className="flex gap-1">
+                {[...Array(totalPages)].map((_, i) => {
+                  const page = i + 1;
+                  const isSelected =
+                    page >= currentPage &&
+                    page < currentPage + displayedPagesCount;
+
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 &&
+                      page <= currentPage + displayedPagesCount)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageClick(page)}
+                        className={`w-9 h-9 rounded-xl font-black transition-all border-2 ${
+                          isSelected
+                            ? "border-[#00a693] text-[#00a693]"
+                            : "border-transparent text-gray-400 hover:text-[#00a693]"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + displayedPagesCount + 1
+                  ) {
+                    return (
+                      <span key={page} className="text-gray-300">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              {/* Стрілка вправо */}
+              <button
+                disabled={currentPage + displayedPagesCount - 1 >= totalPages}
+                onClick={handleNextPage}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
+              >
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* МОДАЛКА ОФОРМЛЕННЯ */}
