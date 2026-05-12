@@ -3,13 +3,13 @@ import { getFirestore } from "firebase/firestore"; // Додали Firestore
 import { getAuth } from "firebase/auth"; // Додали Auth
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC9U8CAF-lW2LzEaAefHC5WISDTcLnbYP8",
-  authDomain: "perfume-shop-9f938.firebaseapp.com",
-  projectId: "perfume-shop-9f938",
-  storageBucket: "perfume-shop-9f938.firebasestorage.app",
-  messagingSenderId: "414613260873",
-  appId: "1:414613260873:web:602e09faa848bfc37ccd98",
-  measurementId: "G-24EFS5DZH5",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Ініціалізуємо Firebase
