@@ -25,6 +25,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [displayedPagesCount, setDisplayedPagesCount] = useState(1); // Скільки сторінок показано одночасно
+  const itemsPerPage = 12;
 
   // Фільтрація
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,11 +59,17 @@ function App() {
     [perfumes],
   );
 
+  useEffect(() => {
+    setCurrentPage(1);
+    setDisplayedPagesCount(1);
+  }, [searchTerm, filterCategory, filterBrand, sortByPrice]);
+
   const resetFilters = () => {
     setSearchTerm("");
     setFilterCategory("all");
     setFilterBrand("all");
     setSortByPrice("none");
+    setCurrentPage(1); // Скидаємо на першу сторінку
   };
 
   const handleGenerateText = () => {
@@ -97,6 +106,47 @@ function App() {
 
     return result;
   }, [perfumes, searchTerm, filterCategory, filterBrand, sortByPrice]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  // Логіка: показуємо елементи від початку поточної сторінки
+  // до кінця останньої розгорнутої сторінки
+  const currentItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    (currentPage - 1) * itemsPerPage + displayedPagesCount * itemsPerPage,
+  );
+
+  // Натискання на "Показати ще"
+  const handleShowMore = () => {
+    const nextPage = currentPage + displayedPagesCount;
+    if (nextPage <= totalPages) {
+      setDisplayedPagesCount((prev) => prev + 1);
+      // Оновлюємо "активну" цифру в пагінації на останню додану сторінку
+      // або залишаємо як є, якщо хочете, щоб активною була перша зі списку
+    }
+  };
+
+  // Натискання на конкретну цифру
+  const handlePageClick = (pageNumber) => {
+    // Якщо ми натискаємо на конкретну цифру або стрілку,
+    // ми показуємо тільки цю одну сторінку
+    setCurrentPage(pageNumber);
+    setDisplayedPagesCount(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleNextPage = () => {
+    // Логіка для стрілки "Вперед":
+    // Переходимо на сторінку, яка йде ОДРАЗУ після останньої розгорнутої
+    const nextTargetPage = currentPage + displayedPagesCount;
+    if (nextTargetPage <= totalPages) {
+      setCurrentPage(nextTargetPage);
+      setDisplayedPagesCount(1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Логіка кошика
   const addToCart = (perfume, volume) => {
@@ -255,7 +305,7 @@ function App() {
       {/* Grid */}
       <main className="max-w-6xl mx-auto px-4 mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 ">
-          {filteredItems.map((p) => (
+          {currentItems.map((p) => (
             <div
               key={p.id}
               onClick={() => setSelectedPerfume(p)}
@@ -299,6 +349,119 @@ function App() {
               </div>
             </div>
           ))}
+        </div>
+        {/* КОМПАКТНИЙ БЛОК ПАГІНАЦІЇ */}
+        <div className="max-w-4xl mx-auto px-4 mt-8 mb-6 flex flex-col items-center gap-6">
+          {/* Компактна кнопка "Показати ще" */}
+          {currentPage + displayedPagesCount - 1 < totalPages && (
+            <button
+              onClick={handleShowMore}
+              className="flex items-center gap-2.5 px-6 py-2 border border-[#00a693]/20 rounded-full text-[#00a693] hover:bg-[#00a693] hover:text-white transition-all duration-300 group shadow-sm"
+            >
+              <div className="group-hover:rotate-180 transition-transform duration-500">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                </svg>
+              </div>
+              <span className="font-black text-[10px] uppercase tracking-widest">
+                Показати ще
+              </span>
+            </button>
+          )}
+
+          {/* Номери сторінок */}
+          <div className="flex items-center gap-1 text-[13px]">
+            {/* Стрілка вліво */}
+            <button
+              disabled={currentPage === 1}
+              onClick={() => handlePageClick(currentPage - 1)}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div className="flex gap-1">
+              {[...Array(totalPages)].map((_, i) => {
+                const page = i + 1;
+                // Визначаємо, чи є сторінка "активною" (входить в діапазон розгорнутих)
+                const isSelected =
+                  page >= currentPage &&
+                  page < currentPage + displayedPagesCount;
+
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 &&
+                    page <= currentPage + displayedPagesCount)
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageClick(page)}
+                      className={`w-9 h-9 rounded-xl font-black transition-all border-2 ${
+                        isSelected
+                          ? "border-[#00a693] text-[#00a693]" // Синя рамка для всіх розгорнутих сторінок
+                          : "border-transparent text-gray-400 hover:text-[#00a693]"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                } else if (
+                  page === currentPage - 2 ||
+                  page === currentPage + displayedPagesCount + 1
+                ) {
+                  return (
+                    <span key={page} className="text-gray-300">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+            </div>
+
+            {/* Стрілка вправо */}
+            <button
+              disabled={currentPage + displayedPagesCount - 1 >= totalPages}
+              onClick={handleNextPage}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 disabled:opacity-30 hover:bg-[#00a693] hover:text-white transition-all"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
         </div>
       </main>
 
