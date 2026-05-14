@@ -1,5 +1,5 @@
 import { ShoppingCart, Flame } from "lucide-react";
-import { CATEGORIES } from "../../utils/constants";
+import { CATEGORIES } from "../../../utils/constants";
 import TopBar from "./TopBar";
 
 const Header = ({

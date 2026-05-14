@@ -1,17 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
-import Header from "./components/layout/Header";
-import PerfumeGrid from "./components/perfume/PerfumeGrid";
-import PerfumeModal from "./components/perfume/PerfumeModal";
-import CartModal from "./components/cart/CartModal";
-import OrderModal from "./components/cart/OrderModal";
-import Pagination from "./components/UI/Pagination";
-import { usePerfumes } from "./hooks/usePerfumes";
-import { formatOrderText } from "./utils/helpers";
+import Header from "../components/User/layout/Header";
+import PerfumeGrid from "../components/User/perfume/PerfumeGrid";
+import PerfumeModal from "../components/User/perfume/PerfumeModal";
+import CartModal from "../components/User/cart/CartModal";
+import OrderModal from "../components/User/cart/OrderModal";
+import Pagination from "../components/User/UI/Pagination";
+import { usePerfumes } from "../hooks/usePerfumes";
+import { formatOrderText } from "../utils/helpers";
 import {
   ITEMS_PER_PAGE,
   TELEGRAM_CHANNEL_LINK,
   TELEGRAM_ORDER_LINK,
-} from "./utils/constants";
+} from "../utils/constants";
 
 function App() {
   const { perfumes, loading } = usePerfumes();

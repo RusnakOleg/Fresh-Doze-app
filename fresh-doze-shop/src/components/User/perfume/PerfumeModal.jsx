@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { VOLUMES } from "../../utils/constants";
+import { VOLUMES } from "../../../utils/constants";
 
 const PerfumeModal = ({ perfume, onClose, addToCart }) => {
   const [customVolume, setCustomVolume] = useState("");
