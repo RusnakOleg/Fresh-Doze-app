@@ -2,79 +2,87 @@ import { useState, useEffect, useCallback } from "react";
 import { db } from "../firebase";
 import {
   collection,
-  addDoc,
   getDocs,
+  addDoc,
+  updateDoc,
   deleteDoc,
   doc,
-  updateDoc,
 } from "firebase/firestore";
 
 export const usePerfumes = () => {
   const [perfumes, setPerfumes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Використовуємо useCallback, щоб функцію можна було стабільно передавати в useEffect
+  //  ЗАВАНТАЖЕННЯ: Виконується ТІЛЬКИ 1 раз за сесію
   const fetchPerfumes = useCallback(async () => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, "perfumes"));
-      const data = querySnapshot.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
-      }));
+      const data = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
       setPerfumes(data);
     } catch (error) {
-      console.error("Error fetching perfumes:", error);
+      console.error("Помилка завантаження:", error);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Автоматично завантажуємо дані при першому рендері
   useEffect(() => {
     fetchPerfumes();
   }, [fetchPerfumes]);
 
-  // --- Адмін-методи ---
-
+  //  ДОДАВАННЯ: Пишемо в БД + додаємо в масив вручну
   const addPerfume = async (perfumeData) => {
     try {
-      await addDoc(collection(db, "perfumes"), {
+      const docRef = await addDoc(collection(db, "perfumes"), {
         ...perfumeData,
         isAvailable: true,
       });
-      await fetchPerfumes(); // Оновлюємо список
+      // Оновлюємо стейт локально (0 читань з БД)
+      setPerfumes((prev) => [
+        { id: docRef.id, ...perfumeData, isAvailable: true },
+        ...prev,
+      ]);
     } catch (e) {
-      alert("Помилка при додаванні");
+      alert("Помилка додавання");
     }
   };
 
+  //  ОНОВЛЕННЯ: Пишемо в БД + міняємо елемент у масиві
   const updatePerfume = async (id, perfumeData) => {
     try {
       await updateDoc(doc(db, "perfumes", id), perfumeData);
-      await fetchPerfumes();
+      // Оновлюємо стейт локально (0 читань з БД)
+      setPerfumes((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...perfumeData } : p)),
+      );
     } catch (e) {
-      alert("Помилка при оновленні");
+      alert("Помилка оновлення");
     }
   };
 
+  // ВИДАЛЕННЯ: Видаляємо в БД + прибираємо з масиву
   const deletePerfume = async (id) => {
-    if (window.confirm("Видалити цей аромат?")) {
-      try {
-        await deleteDoc(doc(db, "perfumes", id));
-        await fetchPerfumes();
-      } catch (e) {
-        alert("Помилка при видаленні");
-      }
+    if (!window.confirm("Видалити цей аромат?")) return;
+    try {
+      await deleteDoc(doc(db, "perfumes", id));
+      // Оновлюємо стейт локально (0 читань з БД)
+      setPerfumes((prev) => prev.filter((p) => p.id !== id));
+    } catch (e) {
+      alert("Помилка видалення");
     }
   };
 
+  // НАЯВНІСТЬ: Пишемо в БД + міняємо статус у масиві
   const toggleAvailability = async (id, currentStatus) => {
     try {
-      await updateDoc(doc(db, "perfumes", id), {
-        isAvailable: !currentStatus,
-      });
-      await fetchPerfumes();
+      await updateDoc(doc(db, "perfumes", id), { isAvailable: !currentStatus });
+      // Оновлюємо стейт локально (0 читань з БД)
+      setPerfumes((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, isAvailable: !currentStatus } : p,
+        ),
+      );
     } catch (e) {
       console.error(e);
     }
@@ -83,7 +91,6 @@ export const usePerfumes = () => {
   return {
     perfumes,
     loading,
-    fetchPerfumes,
     addPerfume,
     updatePerfume,
     deletePerfume,
