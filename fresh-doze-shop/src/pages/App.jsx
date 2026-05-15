@@ -4,7 +4,7 @@ import PerfumeGrid from "../components/User/perfume/PerfumeGrid";
 import PerfumeModal from "../components/User/perfume/PerfumeModal";
 import CartModal from "../components/User/cart/CartModal";
 import OrderModal from "../components/User/cart/OrderModal";
-import Pagination from "../components/User/UI/Pagination";
+import Pagination from "../components/UI/Pagination";
 import { usePerfumes } from "../hooks/usePerfumes";
 import { formatOrderText } from "../utils/helpers";
 import {

@@ -31,6 +31,7 @@ const Pagination = ({
               <path d="M21 3v5h-5" />
             </svg>
           </div>
+
           <span className="font-black text-[10px] uppercase tracking-widest">
             Показати ще
           </span>
@@ -60,8 +61,10 @@ const Pagination = ({
         <div className="flex gap-1">
           {[...Array(totalPages)].map((_, i) => {
             const page = i + 1;
+
             const isSelected =
               page >= currentPage && page < currentPage + displayedPagesCount;
+
             if (
               page === 1 ||
               page === totalPages ||

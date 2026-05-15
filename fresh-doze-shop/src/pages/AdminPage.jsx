@@ -10,7 +10,7 @@ import Header from "../components/Admin/layout/Header";
 import PerfumeForm from "../components/Admin/perfume/PerfumeForm";
 import FilterBar from "../components/Admin/layout/FilterBar";
 import PerfumeList from "../components/Admin/perfume/PerfumeList";
-import Pagination from "../components/Admin/UI/Pagination";
+import Pagination from "../components/UI/Pagination";
 import OrderModal from "../components/Admin/order/OrderModal";
 import PrintInvoice from "../components/Admin/order/PrintInvoice";
 import FloatingOrderButton from "../components/Admin/order/FloatingOrderButton";
@@ -265,9 +265,8 @@ export default function AdminPage() {
 
         <Pagination
           {...{
-            currentItems,
-            totalPages,
             currentPage,
+            totalPages,
             displayedPagesCount,
             handleShowMore: () => setDisplayedPagesCount((p) => p + 1),
             handlePageClick: handlePageClick,
