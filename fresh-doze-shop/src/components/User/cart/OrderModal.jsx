@@ -1,9 +1,26 @@
 import { Copy, TriangleAlert, CreditCard, Truck } from "lucide-react";
+import toast from "react-hot-toast";
 
 const OrderModal = ({ telegramOrderLink, text, onClose }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
-    alert("Текст скопійовано!");
+
+    toast.success("Текст замовлення скопійовано!", {
+      duration: 3000,
+      position: "top-center",
+
+      style: {
+        borderRadius: "1rem",
+        background: "#333",
+        color: "#fff",
+        fontSize: "14px",
+        fontWeight: "bold",
+      },
+      iconTheme: {
+        primary: "#00a693",
+        secondary: "#fff",
+      },
+    });
   };
 
   return (
