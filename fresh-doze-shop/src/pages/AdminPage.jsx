@@ -14,6 +14,7 @@ import Pagination from "../components/UI/Pagination";
 import OrderModal from "../components/Admin/order/OrderModal";
 import PrintInvoice from "../components/Admin/order/PrintInvoice";
 import FloatingOrderButton from "../components/Admin/order/FloatingOrderButton";
+import { ITEMS_PER_PAGE_ADMIN } from "../utils/constants";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export default function AdminPage() {
 
   const [displayedPagesCount, setDisplayedPagesCount] = useState(1);
 
-  const itemsPerPage = 8;
+  const itemsPerPage = ITEMS_PER_PAGE_ADMIN;
 
   const resetFilters = () => {
     setSearchTerm("");
