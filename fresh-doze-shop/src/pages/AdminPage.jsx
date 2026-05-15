@@ -15,6 +15,7 @@ import OrderModal from "../components/Admin/order/OrderModal";
 import PrintInvoice from "../components/Admin/order/PrintInvoice";
 import FloatingOrderButton from "../components/Admin/order/FloatingOrderButton";
 import { ITEMS_PER_PAGE_ADMIN } from "../utils/constants";
+import Loader from "../components/UI/Loader";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function AdminPage() {
 
   const {
     perfumes,
+    loading,
     addPerfume,
     updatePerfume,
     deletePerfume,
@@ -202,6 +204,8 @@ export default function AdminPage() {
       setTimeout(scrollToItems, 100); // Додаємо невелику затримку для плавності
     }
   };
+
+  if (loading) return <Loader />;
 
   if (!user) return null;
 

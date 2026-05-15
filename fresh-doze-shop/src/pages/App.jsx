@@ -12,6 +12,7 @@ import {
   TELEGRAM_CHANNEL_LINK,
   TELEGRAM_ORDER_LINK,
 } from "../utils/constants";
+import Loader from "../components/UI/Loader";
 
 function App() {
   const { perfumes, loading } = usePerfumes();
@@ -80,12 +81,7 @@ function App() {
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center font-bold text-[#00a693]">
-        Завантаження FRESH DOZE...
-      </div>
-    );
+  if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10 text-gray-900 font-sans">
