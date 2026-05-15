@@ -6,11 +6,13 @@ import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminPage from "./pages/AdminPage.jsx";
 import ErrorBoundary from "./components/UI/ErrorBoundary.jsx";
+import { Toaster } from "react-hot-toast";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
+        <Toaster position="top-center" reverseOrder={false} />
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<Login />} />
