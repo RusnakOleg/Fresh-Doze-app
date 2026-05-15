@@ -130,9 +130,7 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Видалити цей аромат?")) {
-      await deletePerfume(id);
-    }
+    await deletePerfume(id);
   };
 
   const filteredPerfumes = useMemo(() => {
