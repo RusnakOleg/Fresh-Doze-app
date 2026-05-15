@@ -3,7 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
-import usePerfumes from "../hooks/usePerfumesAdmin";
+import { usePerfumes } from "../hooks/usePerfumes";
 import useOrder from "../hooks/useOrder";
 
 import Header from "../components/Admin/layout/Header";
